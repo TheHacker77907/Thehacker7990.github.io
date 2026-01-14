@@ -1,0 +1,37 @@
+<!doctype html>
+<!-- lab8.html by  -->
+
+<html><head> <title> Lab8 </title>
+
+<script type="text/javascript">
+function goUp()
+  // Assumes: countBox contains a non-negative integer (like 10)
+  // Results: displays numbers increased by 10 until 200 in outputDiv
+
+{  //start function block
+var number;
+number = parseFloat(document.getElementById('numberBox').value);
+var result = '';
+
+while (number <= 200) {  // start while loop
+result =result + number + '<br>';
+number = number +10;
+
+} //close while loop
+
+document.getElementById('outputDiv').innerHTML =result + 'Done!';
+}//close function block
+
+</script>
+</head>
+
+<body bgcolor="#FFF0F5">
+<h2> Lab8 displays numbers each time increased by 10 until reaching 200 </h2>
+<p>
+Start of a Postitive Integer Number (like 10): <input type="text" id="numberBox" sized=4 value="">
+</p>
+<input type="button" value="Increased by 10 until not more than 200" onclick="goUp();" />
+<hr />
+<div id="outputDiv"></div>
+</body>
+</html>
