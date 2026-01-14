@@ -1,1 +1,1 @@
-# TripleBladeLandscaping.github.io
+B S U computer science class resources 
