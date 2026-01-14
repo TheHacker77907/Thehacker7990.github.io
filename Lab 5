@@ -1,0 +1,42 @@
+<!doctype html>
+<!--  Lab5.html by  -->
+<!--  Lab5 Web page that displays the distance between two coordinates. -->
+<!-- ======================================================== -->
+
+<html>
+<head>
+<title> Lab5 - Distance Calculator</title>
+
+<script type="text/javascript">
+function distance()
+// Assumes: two coordinates are entered in the text boxes
+// Results: displays the distance between those coordinates in outputDiv
+{
+x1 = parseFloat(document.getElementById('x1Box').value);
+y1 = parseFloat(document.getElementById('y1Box').value);
+x2 = parseFloat(document.getElementById('x2Box').value);
+y2 = parseFloat(document.getElementById('y2Box').value);
+
+dist = Math.sqrt( Math.pow(x1-x2, 2) + Math.pow(y1-y2, 2) );
+result = Math.round (dist)
+
+document.getElementById('outputDiv').innerHTML=
+'The distance between (' + x1 + ', ' + y1 + ') and (' + x2 + ',' + y2 + ') is ' + result ;
+}
+
+</script>
+
+</head>
+<body>
+<h2>Lab 5 Distance Calculator</h2>
+<p>
+coordinate 1: (<input type="text" id="x1Box" value="0">,<input type="text" id="y1Box" value="0">)
+
+<br>
+coordinate 2: (<input type ="text" id="x2Box" value="3">,<input type="text" id="y2Box" value="4">)
+</p>
+<input type="button" value="Calulate Distance" onclick="distance();">
+<hr>
+<div id="outputDiv"></div>
+</body>
+</html>
