@@ -1,0 +1,103 @@
+<!doctype html>
+<!-- Project1: -->
+<html><head>
+<title> CS110 Project 1 </title>
+
+<script type="text/javascript">
+
+function ConvertToFeet()
+// Assumes: yardBox contains a distance in yards
+// Results: displays the distance in feet in outputDiv1
+//number.toFixed(2):Convert a number into a string, rounding the number to keep only two decimals
+{
+var yard, feet;
+yard = parseFloat(document.getElementById('yardBox').value);
+feet = (yard * 3).toFixed(2);
+document.getElementById('outputDiv1').innerHTML =
+yard + ' yards = ' + feet + ' feet.<br><hr>';
+}
+
+function ConvertToKilograms()
+// Assumes: poundBox contains a weight in pounds
+// Results: displays the weight in kilograms in outputDiv2
+{
+var pounds, kilograms;
+pounds = parseFloat(document.getElementById('poundBox').value);
+kilograms  = (pounds * 2.2046).toFixed(2);
+document.getElementById('outputDiv2').innerHTML =
+pounds +' pounds= ' + kilograms + ' kilograms. <br><hr>';
+}
+function ConvertToMPH()
+// Assumes: kphBox contains speed in KPH (kilometers per hour)
+// Results: displays the speed in MPH (miles per hour) in outputDiv3
+{
+var kph, mph;
+kph = parseFloat(document.getElementById('kphBox').value);
+mph = (kph / 1.609344).toFixed(2);
+document.getElementById('outputDiv3').innerHTML =
+kph +' kilometers per hour= ' + mph + ' miles per hour. <br><hr>';
+}
+
+function ConvertToCelsius()
+// Assumes: fDegree contains a Fahrenheit degree in temperature
+// Assumes: cDegree contains a Celsius degree in temperature
+// Results: displays the Celsius temperature in outputDiv4
+{
+ var fDegree, cDegree;
+fDegree=parseFloat(document.getElementById('fahrenheitBox').value);
+cDegree = (fDegree - 32) * 5/9;
+celsiusDegree=cDegree.toFixed(2)
+document.getElementById('outputDiv4').innerHTML =
+fDegree + ' fahrenheit degree = ' + celsiusDegree + ' celsius degree. <br><hr>';
+}
+function ConvertToFahrenheit()
+{
+// Assumes: cDegree contains a Celsius degree in temperature
+// Assumes: fDegree contains a Fahrenheit degree in temperature
+// Results: displays the Celsius degree in outputDiv5
+
+cDegree = parseFloat(document.getElementById('celsiusBox').value);
+fDegree = ((cDegree * 9/5) + 32);
+fahrenheitDegree     =fDegree.toFixed(2);
+document.getElementById('outputDiv5').innerHTML =
+cDegree + ' celsius degree = '+ fahrenheitDegree  + ' fahrenheit degree. <br><hr>';
+
+}
+
+</script>
+
+</head>
+<body>
+<H2>CS 110 Metric and English Systems </H2>
+<p>Type a value in the yards and convert to feet:
+<input type="text" id="yardBox" size=6 value="">
+<input type="button" value="Convert to feet" onclick="ConvertToFeet();">
+</p>
+
+<p>Type a value in the pounds and convert to Kilograms:
+<input type="text" id="poundBox" size=6 value="">
+<input type="button" value="Convert to Kilograms" onclick="ConvertToKilograms();">
+</p>
+
+<p>Type a speed in KPH (kilometers per hour) and convert to MPH:
+<input type="text" id="kphBox" size=6 value="">
+<input type="button" value="Convert to MPH (miles per hour)" onclick="ConvertToMPH();">
+</p>
+
+<p>Type Temperature in Fahrenheit and convert to Celsius :
+<input type="text" id="fahrenheitBox" size=6 value="">
+<input type="button" value="Convert to Celsius" onclick="ConvertToCelsius();">
+</p>
+
+<p>Type Temperature in Celsius and convert to Fahrenheit:
+<input type="text" id="celsiusBox" size=6 value="">
+<input type="button" value="Convert to Fahrenheit" onclick="ConvertToFahrenheit();">
+</p>
+<hr>
+<div id="outputDiv1"></div>
+<div id="outputDiv2"></div>
+<div id="outputDiv3"></div>
+<div id="outputDiv4"></div>
+<div id="outputDiv5"></div>
+
+</body></html>
