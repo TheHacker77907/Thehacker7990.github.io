@@ -1,0 +1,45 @@
+<!doctype html>
+<!-- name CS110 Lab 1 -->
+<html>
+	<head> <title> Lab1 </title></head>
+<body bgcolor="FloralWhite">
+<center>
+<p><b><u> Department of Computer Science </b></
+<p><b><a href="https://www.bsu.edu/">Ball State University	</b></a></p>
+<p><b><i>Munic, In 47306</i></b></p>
+</center>
+<hr width=100% hight=100%>
+<h1> <b> Our Programs </b></h1>
+<ul>
+	<li> Bachelor Degree in Computer Science </li>
+	<li> Minor in Computer Science </li>
+	<li> Minor in Computer Security </li>
+</ul>
+<h2> <b> Program Strengths	</b> </h2>
+<ul>
+	<li> Programming Languages</li>
+	<li> Operating Systems <li>
+	<li> Networks</li>
+	<li> Databases</li>
+	<li> Theory of Computing<li>
+ </ul>
+<h3><b>About us </b></h3>
+<ol>
+	<li> Research Groups </li>
+	<li> Faculty and Staff	</li>
+	<li> Contact us </li>
+</ol>
+
+<h4> <b>Additional Contact Information </b></h4>
+<ul>
+	<li>Office of Undergraduate Admissions </li>
+	<li> Academic Advising</li>
+	<li>College of Sciences and Humanities </li>
+</ul>
+<hr>
+<div style="text-align:center">
+<h3 style="background-color:Tomato;">Location</h3>
+<p style="background-color:DodgerBlue;">Robert Bell Building (RB)<br> Room 455 </p>
+</div>
+</body>
+</html>
