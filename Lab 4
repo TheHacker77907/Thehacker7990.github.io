@@ -1,0 +1,40 @@
+<!doctype html>
+<!--Lab4.html My name is      -->
+<!--Lab4 is a Web page that calculates a numeric course grade.-->
+<html>
+<head>
+<title> Lab 4 Grade Calulator </title>
+</head>
+<body>
+<h2> Grade Calulation</h2>
+<p>
+Enter your name: <input type="text" id="nameBox" size=12 value=""><br><br>
+Homework average: <input type="text" id="homeworkBox" value=""><br><br>
+Lab average: <input type="text" id="labsBox" value=""><br><br>
+Project score: <input type="text" id="projectBox" value=""><br><br>
+Final Exam score: <input type="text" id="examBox" value="">
+</p>
+<br>
+<!-- Start input button -->
+
+<input type="button" value="Calculate Course Grade"
+onclick="homework=parseFloat(document.getElementById('homeworkBox').value);
+
+labs=parseFloat(document.getElementById('labsBox').value);
+
+project=parseFloat(document.getElementById('projectBox').value);
+
+finalExam=parseFloat(document.getElementById('examBox').value);
+
+overall_Average = homework*0.20 + labs*0.30 + finalExam*0.20;
+
+document.getElementById('outputDiv').innerHTML=
+
+'Hello '+ document.getElementById('nameBox').value+ ',your overall course average grade is: ' + overall_Average;
+
+">
+<!--Close input button	-->
+<hr>
+<div id="outputDiv"></div>
+</body>
+</html>
