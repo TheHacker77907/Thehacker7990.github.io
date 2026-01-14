@@ -1,0 +1,42 @@
+<!-- lab6.html by -->
+<!-- Lab6.html that converts a class final numeric score into a letter grade -->
+<html><head> <title> Lab6 </title>
+<script type="text/javascript">
+function convert()
+// Assumes individual grades are entered in the text boxes
+// Results: displays a letter grade in outputDiv
+{
+var scores, letter;
+scores=parseFloat(document.getElementById('scoreBox').value);
+if (scores < 60) {
+letter = 'F';
+}
+else if (scores < 70) {
+letter = 'D';
+}
+else if (scores < 80) {
+letter = 'C';
+}
+else if (scores < 90) {
+letter = 'B';
+}
+else
+{
+letter = 'A';
+}
+document.getElementById('outputDiv').innerHTML=
+'The Letter grade is: ' + letter;
+}
+</script>
+</head>
+<body>
+<h2> Lab6 Convert a numeric score into a letter grade </h2>
+<p> Please enter a student's class final numeric score here:</p>
+<input type="text" id="scoreBox" value"">
+<hr>
+<br>
+<input type="button" value="Convert to a letter grade!" onclick="convert();">
+<hr>
+<div id="outputDiv"></div>
+</body>
+</html>
