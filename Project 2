@@ -1,0 +1,107 @@
+<html><head>
+<title> CS110 Project2 </title>
+	<script type="text/javascript">
+function calculate() { //starting calculate function
+	
+	var resp ="";
+	var count =0, totalPrice =0, tax=0;
+	
+	for (i=0; i<=7; i++) { //starting for loop
+	 if (document.survey.item[i].checked ){
+		resp = resp+ "\n" + document.survey.item[i].value;
+		count = count + 1;
+		} //ending if
+	 } // ending for loop
+	 
+		resp = resp + "\nYou have bought " + count + " items.";
+		var j = document.survey.class.selectedIndex;
+		
+		if (document.survey.class.options[j].value == "")
+		{ alert ("You must select your classification!");}
+		
+	else if (document.survey.class.options[j].value == "HighSchoolSenior")
+		{resp = resp + "\n\nYou are a High School Senior Student.";}
+		
+	else if (document.survey.class.options[j].value == "freshman")
+		{resp = resp + "\n\nYou are a College Freshman.";}
+		
+	else if (document.survey.class.options[j].value == "sophomore")
+		{resp = resp + "\n\nYou are a College Sophomore.";}
+		
+	else if (document.survey.class.options[j].value == "junior")
+		{resp = resp + "\n\nYou are a College Junior.";}
+		
+	else if (document.survey.class.options[j].value == "senior")
+		{resp = resp + "\n\nYou are a College Senior.";}
+		
+	document.survey.answer.value = resp;
+	
+if (document.survey.item[0].checked )
+{	totalPrice+=9.45;}
+if (document.survey.item[1].checked)
+{	totalPrice+=9.86;}
+if (document.survey.item[2].checked)
+{	totalPrice+=8.39;}
+if (document.survey.item[3].checked)
+{	totalPrice+=10.49;}
+if (document.survey.item[4].checked)
+{	totalPrice+=8.59;}
+if (document.survey.item[5].checked)
+{	totalPrice+=3.25;}
+if (document.survey.item[6].checked)
+{	totalPrice+=5.59;}
+if (document.survey.item[7].checked)
+{totalPrice+=12.13;}
+
+tax = Math.round(100*((0.07) * totalPrice))/100;
+payment =totalPrice + tax;
+
+document.survey.answer.value =
+resp+"\n"+"\nYour total payment including tax is: $" + Math.round(100*payment)/100;
+
+}//Close calculate function
+
+</script>
+</head>
+
+<body bgcolor="#FFD0D0">
+<H1> CS110 Project 2 </H1>
+<H2> Sporting Goods Shop Survey </H2>
+<form name="survey">
+<P>What is your student classification?
+<select name="class">
+<option value="">
+<option value="HighSchoolSenior"> High School Senior
+<option value="freshman"> College Freshman
+<option value="sophomore"> College Sophomore
+<option value="junior"> College Junior
+<option value="senior"> College Senior
+</select>
+</P>
+<H3>What items or goods that you have just bought? Check all that apply. </H3>
+<table width=100% border=2 bordercolor="white" cellpadding=5 bgcolor="gold">
+<tr>
+<td><input type="checkbox" name="item" value="You have bought Basketball.">Basketball<br>$9.45</td>
+<td><input type="checkbox" name="item" value="You have bought Soccer Ball.">Soccer Ball<br>$9.86</td>
+<td><input type="checkbox" name="item" value="You have bought Volleyball.">Volleyball<br>$8.39</td>
+<td><input type="checkbox" name="item" value="You have bought Football.">Football<br>$10.49</td>
+</tr>
+<tr>
+<td><input type="checkbox" name="item" value="You have bought Baseball Bat.">Baseball Bat<br>$8.59</td>
+<td><input type="checkbox" name="item" value="You have bought Camping Light.">Camping
+Light<br>$3.25</td>
+<td><input type="checkbox" name="item" value="You have bought Camping Mat">Camping
+Mat<br>$5.59</td>
+<td><input type="checkbox" name="item" value="You have bought Tennis Racket.">Tennis
+Racket<br>$12.13</td>
+</tr>
+</table>
+<br><br>
+<textarea rows=14 cols=40 name="answer"> I will respond to you here. </textarea>
+<br>
+<input type="button" value="Give us your data" onclick= calculate() > &nbsp;&nbsp;&nbsp;
+<input type="reset" >
+<br><br>
+</form>
+</body>
+</html>
