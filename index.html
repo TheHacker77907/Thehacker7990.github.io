@@ -1,261 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Triple Blade Landscaping</title>
-  <style>
-    /* Reset */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
+    <meta charset="UTF-8">
+    <title>Political Commentator Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+        }
 
-    body {
-      background: #f9f9f9;
-      color: #333;
-      line-height: 1.6;
-    }
+        header {
+            background: #1a2b49;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
 
-    header {
-      background: #2e7d32;
-      color: white;
-      padding: 15px 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
+        nav {
+            background: #122038;
+            padding: 10px;
+            text-align: center;
+        }
 
-    header img {
-      height: 60px;
-    }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+        }
 
-    nav a {
-      color: white;
-      margin: 0 15px;
-      text-decoration: none;
-      font-weight: bold;
-    }
+        nav a:hover {
+            color: #4da3ff;
+        }
 
-    nav a:hover {
-      text-decoration: underline;
-    }
+        .hero {
+            text-align: center;
+            padding: 50px 20px;
+            background: white;
+        }
 
-    .hero {
-      background: url('https://images.unsplash.com/photo-1599058917212-d750089bc4d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80') no-repeat center center/cover;
-      height: 70vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      color: white;
-      padding: 20px;
-    }
+        .hero img {
+            width: 250px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
 
-    .hero h1 {
-      font-size: 3rem;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 15px 25px;
-      border-radius: 8px;
-    }
+        .section {
+            padding: 40px 20px;
+            max-width: 1000px;
+            margin: auto;
+        }
 
-    section {
-      padding: 50px 20px;
-      max-width: 1200px;
-      margin: auto;
-    }
+        .cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
 
-    h2 {
-      text-align: center;
-      margin-bottom: 30px;
-      color: #2e7d32;
-    }
+        .card {
+            background: white;
+            padding: 20px;
+            flex: 1 1 300px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
 
-    .services {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
+        .card img {
+            width: 100%;
+            border-radius: 6px;
+        }
 
-    .service {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      text-align: center;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
+        footer {
+            background: #1a2b49;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
 
-    .service img {
-      width: 100%;
-      border-radius: 8px;
-      height: auto;
-      object-fit: contain;
-    }
-
-    .contact {
-      text-align: center;
-    }
-
-    .contact p {
-      margin: 10px 0;
-      font-size: 1.2rem;
-    }
-
-    .calendar {
-      margin-top: 30px;
-      overflow-x: auto;
-    }
-
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: center;
-    }
-
-    th {
-      background: #2e7d32;
-      color: white;
-    }
-
-    .slot {
-      cursor: pointer;
-      padding: 8px;
-      border-radius: 5px;
-      background: #ffcdd2; /* default: not available */
-      transition: background 0.3s;
-    }
-
-    .available {
-      background: #c8e6c9 !important;
-    }
-
-    footer {
-      background: #2e7d32;
-      color: white;
-      text-align: center;
-      padding: 15px;
-      margin-top: 40px;
-    }
-  </style>
+        @media (max-width: 768px) {
+            .cards {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Header -->
-  <header>
-    <img src="triple-blade-logo.png" alt="Triple Blade Landscaping Logo">
-    <nav>
-      <a href="#services">Services</a>
-      <a href="#calendar">Availability</a>
-      <a href="#contact">Contact</a>
-    </nav>
-  </header>
+<header>
+    <h1>Political Commentator</h1>
+    <p>Speaker • Author • Public Figure</p>
+</header>
 
-  <!-- Hero Section -->
-  <div class="hero">
-    <h1>Keeping Your Lawn Fresh & Beautiful 🌱</h1>
-  </div>
+<nav>
+    <a href="#about">About</a>
+    <a href="#media">Media</a>
+    <a href="#contact">Contact</a>
+</nav>
 
-  <!-- Services Section -->
-  <section id="services">
-    <h2>Our Services</h2>
-    <div class="services">
-      <div class="service">
-        <img src="https://images.unsplash.com/photo-1597008631379-dc91878ae6e7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Lawn Mowing">
-        <h3>Lawn Mowing</h3>
-        <p>Regular mowing to keep your yard perfectly maintained.</p>
-      </div>
-      <div class="service">
-        <img src="https://images.unsplash.com/photo-1589924691995-400dc9eccb5d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Hedge Trimming">
-        <h3>Hedge Trimming</h3>
-        <p>Professional hedge trimming to keep your landscape tidy.</p>
-      </div>
-      <div class="service">
-        <img src="https://images.unsplash.com/photo-1600674761257-f3e3880c7a06?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Garden Care">
-        <h3>Garden Care</h3>
-        <p>Flower bed maintenance, weeding, and seasonal cleanups.</p>
-      </div>
+<section class="hero">
+    <img src="https://via.placeholder.com/250x300" alt="Commentator Photo">
+    <h2>Welcome</h2>
+    <p>This website highlights the work, media appearances, and public commentary of a political speaker.</p>
+</section>
+
+<section id="about" class="section">
+    <h2>About</h2>
+    <p>
+        This commentator focuses on political analysis, cultural topics, and public policy discussions.
+        Known for strong debate skills and public speaking events across the country.
+    </p>
+</section>
+
+<section id="media" class="section">
+    <h2>Media & Events</h2>
+    <div class="cards">
+        <div class="card">
+            <img src="https://via.placeholder.com/400x250" alt="Speech Image">
+            <h3>University Speech</h3>
+            <p>Campus debate and political discussion event.</p>
+        </div>
+        <div class="card">
+            <img src="https://via.placeholder.com/400x250" alt="Interview Image">
+            <h3>TV Interview</h3>
+            <p>Featured discussion on national television.</p>
+        </div>
+        <div class="card">
+            <img src="https://via.placeholder.com/400x250" alt="Podcast Image">
+            <h3>Podcast Appearance</h3>
+            <p>Long-form political commentary and analysis.</p>
+        </div>
     </div>
-  </section>
+</section>
 
-  <!-- Calendar Section -->
-  <section id="calendar">
-    <h2>Weekly Availability</h2>
-    <p style="text-align:center; margin-bottom:15px;">💡 Click on a time slot to toggle availability</p>
-    <div class="calendar">
-      <table>
-        <thead>
-          <tr>
-            <th>Day</th>
-            <th>9 AM</th>
-            <th>11 AM</th>
-            <th>1 PM</th>
-            <th>3 PM</th>
-            <th>5 PM</th>
-          </tr>
-        </thead>
-        <tbody id="calendar-body">
-          <!-- Filled by JavaScript -->
-        </tbody>
-      </table>
-    </div>
-  </section>
+<section id="contact" class="section">
+    <h2>Contact</h2>
+    <p>Email: info@example.com</p>
+    <p>Follow on social media for updates and speaking events.</p>
+</section>
 
-  <!-- Contact Section -->
-  <section id="contact">
-    <h2>Contact Us</h2>
-    <div class="contact">
-      <p>📞 Phone: <strong>(555) 123-4567</strong></p>
-      <p>📧 Email: <strong>info@tripleblade.com</strong></p>
-      <p>📍 Serving the local community with pride</p>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer>
-    <p>&copy; 2025 Triple Blade Landscaping | All Rights Reserved</p>
-  </footer>
-
-  <script>
-    // Setup weekly calendar with time slots
-    const calendarBody = document.getElementById("calendar-body");
-    const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-    const today = new Date();
-
-    for (let i = 0; i < 7; i++) {
-      let date = new Date();
-      date.setDate(today.getDate() + i);
-
-      let row = document.createElement("tr");
-
-      // Day cell
-      let dayCell = document.createElement("td");
-      dayCell.textContent = days[date.getDay()] + " " + (date.getMonth()+1) + "/" + date.getDate();
-      row.appendChild(dayCell);
-
-      // Time slots
-      ["9 AM","11 AM","1 PM","3 PM","5 PM"].forEach(time => {
-        let slot = document.createElement("td");
-        slot.textContent = time;
-        slot.classList.add("slot"); // default: unavailable
-        slot.addEventListener("click", () => {
-          slot.classList.toggle("available");
-        });
-        row.appendChild(slot);
-      });
-
-      calendarBody.appendChild(row);
-    }
-  </script>
+<footer>
+    <p>© 2026 Political Commentary Website | All Rights Reserved</p>
+</footer>
 
 </body>
 </html>
