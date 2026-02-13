@@ -1,0 +1,80 @@
+<!doctype html>
+<!-- lab7.html by -->
+<html><head> <title> Lab 7 </title>
+<script type="text/javascript">
+
+function calculate(){ //Start calculate block
+var weight;
+weight=parseFloat(document.getElementById('weightBox').value);
+
+if (document.getElementById("peach").checked) {//start if
+	//Yellow Peaches: $1.78/lb
+	var beforeTaxPrice= 1.78 * weight
+	var afterTaxPrice=beforeTaxPrice+ beforeTaxPrice * 0.07
+	var finalCost=afterTaxPrice.toFixed(2);
+	var message="Your item weighs: " + weight + " pounds,";
+	document.getElementById('messageArea').value=message+"\nYour peaches price including tax:$"+finalCost;
+	}
+
+else if (document.getElementById("orange").checked) {
+	//Navel Oranges: $1.51/lb
+	var beforeTaxPrice= weight * 1.51;
+	var afterTaxPrice=beforeTaxPrice+ beforeTaxPrice * 0.07
+	var finalCost=afterTaxPrice.toFixed(2);
+	var message="Your item weighs: " + weight + " pounds,";
+	document.getElementById('messageArea').value=message+"\nYour oranges price including tax:$"+finalCost;
+	}
+	
+else if (document.getElementById("apple").checked) {
+	//Envy Apples: $2.67/lb
+	var beforeTaxPrice= weight * 2.67;
+	var afterTaxPrice=beforeTaxPrice+ beforeTaxPrice * 0.07
+	var finalCost=afterTaxPrice.toFixed(2);
+	var message="Your item weighs: " + weight + " pounds,";
+	document.getElementById('messageArea').value=message+"\nYour apples price including tax:$"+finalCost;
+	}
+	
+else
+{  //Fresh papaya: 1.28/lb
+var beforeTaxPrice= weight * 1.28;
+	var afterTaxPrice=beforeTaxPrice+ beforeTaxPrice * 0.07
+	var finalCost=afterTaxPrice.toFixed(2);
+	var message="Your item weighs: " + weight + " pounds,";
+	document.getElementById('messageArea').value=message+"\nYour Papaya price including tax:$"+finalCost;
+}//close else
+	
+}//close calculate block
+function startOver(){
+//It will clear all field
+	
+document.getElementById('weightBox').value="";
+document.getElementById('messageArea').value="";
+document.getElementById("peach").checked=false;
+document.getElementById("orange").checked=false;
+document.getElementById("apple").checked=false;
+document.getElementById("papaya").checked=false;
+
+}//close function startOver block
+
+</script>
+</head>
+
+<body bgcolor="#FFF0F5">
+<h2> My Fresh Fruit Store </h2>
+<p> Are you buying peach, orange, apple or papaya? <br></p>
+Yellow Peaches <input type="radio" id="peach" name="fruit">&nbsp;&nbsp;
+Navel Oranges <input type="radio" id="orange" name="fruit">&nbsp;&nbsp;
+Envy Apples <input type="radio" id="apple" name="fruit">&nbsp;&nbsp;
+Fresh Papaya<input type="radio" id="papaya" name="fruit">
+<p>How much does it weigh? (Please answer in pound)<br>
+<input type="text" id="weightBox" value="">
+</p>
+<p>
+<textarea id="messageArea" rows=6 cols=40></textarea>
+</p>
+<p>
+<input type="button" value="Calculate my cost!" onclick="calculate();">&nbsp;&nbsp;
+<input type="button" value="Start Over" onclick="startOver();">
+</p>
+</body>
+</html>
