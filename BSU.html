@@ -1,0 +1,2061 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SENTINEL // OSINT PLATFORM</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #020c08;
+    --surface: #040f0a;
+    --border: #0d3322;
+    --accent: #00ff88;
+    --accent2: #00ccff;
+    --accent3: #ff4444;
+    --accent4: #ffaa00;
+    --text: #c8ffd4;
+    --muted: #3a6b4a;
+    --grid: rgba(0,255,136,0.03);
+    --glow: 0 0 20px rgba(0,255,136,0.3);
+    --glow2: 0 0 20px rgba(0,204,255,0.3);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘Share Tech Mono’, monospace;
+height: 100%;
+overflow: hidden;
+}
+
+/* Scanline overlay */
+body::before {
+content: ‘’;
+position: fixed;
+top: 0; left: 0; right: 0; bottom: 0;
+background: repeating-linear-gradient(
+0deg,
+transparent,
+transparent 2px,
+rgba(0,0,0,0.08) 2px,
+rgba(0,0,0,0.08) 4px
+);
+pointer-events: none;
+z-index: 9999;
+}
+
+/* Grid background */
+body::after {
+content: ‘’;
+position: fixed;
+top: 0; left: 0; right: 0; bottom: 0;
+background-image:
+linear-gradient(var(–grid) 1px, transparent 1px),
+linear-gradient(90deg, var(–grid) 1px, transparent 1px);
+background-size: 40px 40px;
+pointer-events: none;
+z-index: 0;
+}
+
+#app {
+display: grid;
+grid-template-rows: 52px 1fr 36px;
+grid-template-columns: 220px 1fr 260px;
+height: 100vh;
+position: relative;
+z-index: 1;
+}
+
+/* ── TOP BAR ── */
+#topbar {
+grid-column: 1 / -1;
+background: linear-gradient(180deg, rgba(0,255,136,0.06) 0%, transparent 100%);
+border-bottom: 1px solid var(–border);
+display: flex;
+align-items: center;
+padding: 0 16px;
+gap: 24px;
+}
+
+.logo {
+font-family: ‘Orbitron’, monospace;
+font-weight: 900;
+font-size: 18px;
+color: var(–accent);
+letter-spacing: 4px;
+text-shadow: var(–glow);
+white-space: nowrap;
+}
+.logo span { color: var(–accent2); }
+
+.topbar-divider {
+width: 1px;
+height: 30px;
+background: var(–border);
+}
+
+#search-container {
+flex: 1;
+display: flex;
+align-items: center;
+gap: 8px;
+background: rgba(0,255,136,0.04);
+border: 1px solid var(–border);
+padding: 6px 12px;
+position: relative;
+}
+
+#search-container::before {
+content: ‘⌕’;
+color: var(–accent);
+font-size: 16px;
+}
+
+#search-input {
+background: none;
+border: none;
+outline: none;
+color: var(–text);
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 13px;
+flex: 1;
+caret-color: var(–accent);
+}
+
+#search-input::placeholder { color: var(–muted); }
+
+.search-tag {
+background: rgba(0,255,136,0.1);
+border: 1px solid rgba(0,255,136,0.3);
+color: var(–accent);
+font-size: 10px;
+padding: 2px 6px;
+cursor: pointer;
+transition: all 0.2s;
+}
+.search-tag:hover { background: rgba(0,255,136,0.2); }
+
+.status-cluster {
+display: flex;
+gap: 16px;
+align-items: center;
+font-size: 11px;
+color: var(–muted);
+}
+
+.status-dot {
+display: flex;
+align-items: center;
+gap: 5px;
+}
+.dot {
+width: 6px; height: 6px;
+border-radius: 50%;
+animation: pulse 2s infinite;
+}
+.dot.green { background: var(–accent); box-shadow: 0 0 6px var(–accent); }
+.dot.blue { background: var(–accent2); box-shadow: 0 0 6px var(–accent2); animation-delay: 0.5s; }
+.dot.red { background: var(–accent3); box-shadow: 0 0 6px var(–accent3); animation-delay: 1s; }
+
+@keyframes pulse {
+0%, 100% { opacity: 1; }
+50% { opacity: 0.3; }
+}
+
+.clock {
+font-family: ‘Orbitron’, monospace;
+font-size: 12px;
+color: var(–accent);
+letter-spacing: 2px;
+border-left: 1px solid var(–border);
+padding-left: 16px;
+}
+
+/* ── LEFT SIDEBAR ── */
+#sidebar-left {
+border-right: 1px solid var(–border);
+display: flex;
+flex-direction: column;
+overflow-y: auto;
+background: rgba(0,15,8,0.8);
+}
+
+.sidebar-section {
+border-bottom: 1px solid var(–border);
+padding: 10px 0;
+}
+
+.sidebar-label {
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 10px;
+letter-spacing: 3px;
+color: var(–muted);
+padding: 4px 12px 8px;
+text-transform: uppercase;
+}
+
+.nav-item {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 8px 12px;
+cursor: pointer;
+transition: all 0.15s;
+font-size: 12px;
+color: #4a9a6a;
+border-left: 2px solid transparent;
+position: relative;
+}
+
+.nav-item:hover, .nav-item.active {
+color: var(–accent);
+background: rgba(0,255,136,0.05);
+border-left-color: var(–accent);
+}
+
+.nav-item .icon { font-size: 14px; width: 20px; text-align: center; }
+.nav-item .badge {
+margin-left: auto;
+background: rgba(0,255,136,0.15);
+border: 1px solid rgba(0,255,136,0.3);
+color: var(–accent);
+font-size: 9px;
+padding: 1px 5px;
+}
+.nav-item .badge.red {
+background: rgba(255,68,68,0.15);
+border-color: rgba(255,68,68,0.3);
+color: var(–accent3);
+}
+
+/* TARGETS */
+.target-item {
+padding: 8px 12px;
+border-bottom: 1px solid rgba(13,51,34,0.5);
+cursor: pointer;
+transition: background 0.15s;
+}
+.target-item:hover { background: rgba(0,255,136,0.03); }
+.target-item .t-name { font-size: 12px; color: var(–text); }
+.target-item .t-coords { font-size: 10px; color: var(–muted); margin-top: 2px; }
+.target-item .t-status { font-size: 9px; margin-top: 3px; }
+.t-status.active { color: var(–accent); }
+.t-status.tracking { color: var(–accent4); }
+.t-status.cold { color: var(–muted); }
+
+/* ── MAIN CONTENT ── */
+#main {
+display: flex;
+flex-direction: column;
+overflow: hidden;
+position: relative;
+}
+
+/* Tab Bar */
+#tab-bar {
+display: flex;
+border-bottom: 1px solid var(–border);
+background: rgba(0,10,5,0.9);
+flex-shrink: 0;
+}
+
+.tab {
+padding: 10px 18px;
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 12px;
+letter-spacing: 2px;
+text-transform: uppercase;
+cursor: pointer;
+color: var(–muted);
+border-bottom: 2px solid transparent;
+transition: all 0.2s;
+display: flex;
+align-items: center;
+gap: 6px;
+white-space: nowrap;
+}
+.tab:hover { color: var(–accent); }
+.tab.active {
+color: var(–accent);
+border-bottom-color: var(–accent);
+background: rgba(0,255,136,0.04);
+text-shadow: var(–glow);
+}
+.tab.blue.active {
+color: var(–accent2);
+border-bottom-color: var(–accent2);
+text-shadow: var(–glow2);
+}
+
+/* Panel Content */
+#panel-content {
+flex: 1;
+overflow: hidden;
+position: relative;
+}
+
+.panel {
+position: absolute;
+inset: 0;
+display: none;
+overflow: hidden;
+}
+.panel.active { display: flex; flex-direction: column; }
+
+/* MAP PANEL */
+#panel-map {
+position: relative;
+}
+
+#map-container {
+flex: 1;
+background: #010a04;
+position: relative;
+overflow: hidden;
+}
+
+/* Fake map SVG */
+#map-svg {
+width: 100%; height: 100%;
+position: absolute;
+top: 0; left: 0;
+}
+
+.map-controls {
+position: absolute;
+top: 12px; right: 12px;
+display: flex;
+flex-direction: column;
+gap: 4px;
+z-index: 10;
+}
+
+.map-btn {
+width: 32px; height: 32px;
+background: rgba(4,15,10,0.9);
+border: 1px solid var(–border);
+color: var(–accent);
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 14px;
+transition: all 0.2s;
+font-family: ‘Share Tech Mono’, monospace;
+}
+.map-btn:hover {
+background: rgba(0,255,136,0.1);
+border-color: var(–accent);
+box-shadow: var(–glow);
+}
+
+.map-layer-bar {
+position: absolute;
+bottom: 0; left: 0; right: 0;
+background: rgba(2,12,8,0.92);
+border-top: 1px solid var(–border);
+padding: 8px 12px;
+display: flex;
+gap: 8px;
+align-items: center;
+}
+
+.layer-toggle {
+display: flex;
+align-items: center;
+gap: 6px;
+padding: 4px 10px;
+border: 1px solid var(–border);
+cursor: pointer;
+font-size: 11px;
+color: var(–muted);
+transition: all 0.2s;
+user-select: none;
+}
+.layer-toggle.on { color: var(–accent); border-color: rgba(0,255,136,0.4); background: rgba(0,255,136,0.06); }
+.layer-toggle.on.blue { color: var(–accent2); border-color: rgba(0,204,255,0.4); background: rgba(0,204,255,0.06); }
+.layer-toggle.on.orange { color: var(–accent4); border-color: rgba(255,170,0,0.4); background: rgba(255,170,0,0.06); }
+.layer-toggle.on.red { color: var(–accent3); border-color: rgba(255,68,68,0.4); background: rgba(255,68,68,0.06); }
+
+/* FLIGHT PANEL */
+#panel-flights {
+background: #010a04;
+}
+
+.flight-toolbar {
+padding: 10px 14px;
+border-bottom: 1px solid var(–border);
+display: flex;
+gap: 8px;
+align-items: center;
+flex-shrink: 0;
+}
+
+.filter-pill {
+padding: 4px 10px;
+border: 1px solid var(–border);
+color: var(–muted);
+font-size: 11px;
+cursor: pointer;
+transition: all 0.15s;
+}
+.filter-pill.on { color: var(–accent2); border-color: rgba(0,204,255,0.4); background: rgba(0,204,255,0.06); }
+
+.flight-table-wrap { flex: 1; overflow-y: auto; }
+
+table {
+width: 100%;
+border-collapse: collapse;
+font-size: 11px;
+}
+thead th {
+padding: 8px 12px;
+text-align: left;
+color: var(–muted);
+border-bottom: 1px solid var(–border);
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 10px;
+letter-spacing: 2px;
+text-transform: uppercase;
+position: sticky;
+top: 0;
+background: #010a04;
+}
+tbody tr {
+border-bottom: 1px solid rgba(13,51,34,0.4);
+cursor: pointer;
+transition: background 0.1s;
+}
+tbody tr:hover { background: rgba(0,255,136,0.04); }
+tbody td { padding: 8px 12px; }
+.td-callsign { color: var(–accent2); font-weight: bold; }
+.td-type { color: var(–accent4); }
+.td-alt { color: var(–accent); }
+.td-speed { color: var(–text); }
+.td-flag { margin-right: 4px; }
+
+/* CAMERA PANEL */
+#panel-cameras {
+display: grid;
+grid-template-columns: 1fr 1fr 1fr;
+grid-template-rows: 1fr 1fr;
+gap: 2px;
+background: #000;
+overflow: hidden;
+}
+
+.cam-cell {
+position: relative;
+background: #010a04;
+overflow: hidden;
+cursor: pointer;
+transition: outline 0.2s;
+}
+.cam-cell:hover { outline: 1px solid var(–accent); }
+.cam-cell.featured { grid-column: 1 / 3; grid-row: 1 / 3; }
+
+.cam-overlay {
+position: absolute;
+inset: 0;
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+padding: 8px;
+pointer-events: none;
+}
+
+.cam-header {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+}
+
+.cam-id {
+font-size: 10px;
+color: var(–accent);
+background: rgba(2,12,8,0.7);
+padding: 2px 6px;
+border: 1px solid rgba(0,255,136,0.3);
+}
+
+.cam-live {
+font-size: 9px;
+color: var(–accent3);
+background: rgba(2,12,8,0.7);
+padding: 2px 6px;
+border: 1px solid rgba(255,68,68,0.4);
+display: flex;
+align-items: center;
+gap: 4px;
+}
+
+.cam-footer {
+font-size: 10px;
+color: rgba(200,255,212,0.7);
+background: rgba(2,12,8,0.7);
+padding: 3px 6px;
+}
+
+/* Canvas-based camera sim */
+.cam-canvas { width: 100%; height: 100%; display: block; }
+
+/* 3D PANEL */
+#panel-3d {
+display: flex;
+flex-direction: column;
+background: #010a04;
+}
+
+.viewer-3d {
+flex: 1;
+position: relative;
+overflow: hidden;
+}
+
+#canvas3d { width: 100%; height: 100%; display: block; }
+
+.viewer-controls {
+position: absolute;
+bottom: 12px;
+left: 50%;
+transform: translateX(-50%);
+display: flex;
+gap: 6px;
+}
+
+.ctrl-btn {
+padding: 6px 12px;
+background: rgba(4,15,10,0.9);
+border: 1px solid var(–border);
+color: var(–accent);
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 11px;
+cursor: pointer;
+transition: all 0.2s;
+}
+.ctrl-btn:hover { background: rgba(0,255,136,0.1); border-color: var(–accent); }
+.ctrl-btn.active { background: rgba(0,255,136,0.15); border-color: var(–accent); }
+
+/* IMAGERY PANEL */
+#panel-imagery {
+display: flex;
+flex-direction: column;
+background: #010a04;
+}
+
+.imagery-toolbar {
+padding: 8px 12px;
+border-bottom: 1px solid var(–border);
+display: flex;
+gap: 6px;
+align-items: center;
+flex-shrink: 0;
+}
+
+.imagery-grid {
+flex: 1;
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 2px;
+overflow-y: auto;
+background: #000;
+padding: 2px;
+}
+
+.img-tile {
+position: relative;
+aspect-ratio: 1;
+background: #0a1a10;
+cursor: pointer;
+overflow: hidden;
+transition: outline 0.15s;
+}
+.img-tile:hover { outline: 1px solid var(–accent); }
+
+.img-canvas { width: 100%; height: 100%; display: block; }
+
+.img-meta {
+position: absolute;
+bottom: 0; left: 0; right: 0;
+background: linear-gradient(transparent, rgba(0,0,0,0.8));
+padding: 16px 6px 4px;
+font-size: 9px;
+color: rgba(200,255,212,0.7);
+}
+
+/* ── RIGHT SIDEBAR ── */
+#sidebar-right {
+border-left: 1px solid var(–border);
+display: flex;
+flex-direction: column;
+background: rgba(0,10,5,0.85);
+overflow-y: auto;
+}
+
+.panel-header {
+padding: 10px 12px;
+border-bottom: 1px solid var(–border);
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 10px;
+letter-spacing: 3px;
+color: var(–muted);
+text-transform: uppercase;
+display: flex;
+justify-content: space-between;
+align-items: center;
+flex-shrink: 0;
+}
+
+.panel-header .count {
+font-size: 11px;
+color: var(–accent);
+}
+
+/* Intel Feed */
+.intel-item {
+padding: 10px 12px;
+border-bottom: 1px solid rgba(13,51,34,0.4);
+cursor: pointer;
+transition: background 0.1s;
+}
+.intel-item:hover { background: rgba(0,255,136,0.03); }
+
+.intel-time {
+font-size: 9px;
+color: var(–muted);
+margin-bottom: 3px;
+display: flex;
+justify-content: space-between;
+}
+
+.intel-category {
+font-size: 9px;
+padding: 1px 5px;
+border: 1px solid;
+margin-left: 6px;
+}
+.intel-category.sat { color: var(–accent); border-color: rgba(0,255,136,0.3); }
+.intel-category.air { color: var(–accent2); border-color: rgba(0,204,255,0.3); }
+.intel-category.cam { color: var(–accent4); border-color: rgba(255,170,0,0.3); }
+.intel-category.alert { color: var(–accent3); border-color: rgba(255,68,68,0.3); }
+
+.intel-text {
+font-size: 11px;
+color: var(–text);
+line-height: 1.5;
+}
+
+/* Stats */
+.stat-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 1px;
+background: var(–border);
+border-bottom: 1px solid var(–border);
+}
+
+.stat-cell {
+background: rgba(0,10,5,0.85);
+padding: 10px 12px;
+text-align: center;
+}
+
+.stat-val {
+font-family: ‘Orbitron’, monospace;
+font-size: 20px;
+color: var(–accent);
+text-shadow: var(–glow);
+display: block;
+}
+.stat-val.blue { color: var(–accent2); text-shadow: var(–glow2); }
+.stat-val.orange { color: var(–accent4); }
+.stat-val.red { color: var(–accent3); }
+
+.stat-label {
+font-size: 9px;
+color: var(–muted);
+letter-spacing: 1px;
+text-transform: uppercase;
+margin-top: 2px;
+}
+
+/* Mini Map */
+#mini-map {
+height: 140px;
+background: #010a04;
+border-bottom: 1px solid var(–border);
+position: relative;
+overflow: hidden;
+}
+
+/* Analysis */
+.analysis-block {
+padding: 10px 12px;
+border-bottom: 1px solid rgba(13,51,34,0.4);
+}
+.analysis-title {
+font-size: 10px;
+color: var(–accent4);
+letter-spacing: 2px;
+margin-bottom: 6px;
+}
+.analysis-text {
+font-size: 10px;
+color: var(–text);
+line-height: 1.6;
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 13px;
+}
+
+/* Progress bars */
+.prog-item { margin-bottom: 8px; }
+.prog-label {
+display: flex;
+justify-content: space-between;
+font-size: 10px;
+color: var(–muted);
+margin-bottom: 3px;
+}
+.prog-bar {
+height: 3px;
+background: rgba(13,51,34,0.6);
+position: relative;
+}
+.prog-fill {
+height: 100%;
+position: absolute;
+left: 0;
+transition: width 1s ease;
+}
+.prog-fill.green { background: var(–accent); box-shadow: 0 0 6px var(–accent); }
+.prog-fill.blue { background: var(–accent2); box-shadow: 0 0 6px var(–accent2); }
+.prog-fill.orange { background: var(–accent4); }
+.prog-fill.red { background: var(–accent3); }
+
+/* ── BOTTOM BAR ── */
+#bottombar {
+grid-column: 1 / -1;
+border-top: 1px solid var(–border);
+display: flex;
+align-items: center;
+padding: 0 14px;
+gap: 20px;
+font-size: 10px;
+color: var(–muted);
+background: rgba(0,8,4,0.9);
+}
+
+.bottom-item { display: flex; align-items: center; gap: 5px; }
+.bottom-item.accent { color: var(–accent); }
+.bottom-item.red { color: var(–accent3); }
+
+#coords-display {
+margin-left: auto;
+font-family: ‘Orbitron’, monospace;
+font-size: 9px;
+color: var(–accent);
+letter-spacing: 1px;
+}
+
+/* Animations */
+@keyframes blink {
+0%, 100% { opacity: 1; }
+50% { opacity: 0; }
+}
+.blink { animation: blink 1s step-end infinite; }
+
+@keyframes spin {
+from { transform: rotate(0deg); }
+to { transform: rotate(360deg); }
+}
+
+@keyframes fadein {
+from { opacity: 0; transform: translateY(4px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+.intel-item { animation: fadein 0.3s ease; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(–border); }
+::-webkit-scrollbar-thumb:hover { background: var(–muted); }
+
+/* Context menu */
+#context-menu {
+position: fixed;
+background: rgba(2,15,8,0.97);
+border: 1px solid var(–border);
+display: none;
+flex-direction: column;
+z-index: 10000;
+min-width: 160px;
+box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+}
+#context-menu.show { display: flex; }
+.ctx-item {
+padding: 8px 14px;
+font-size: 11px;
+color: var(–text);
+cursor: pointer;
+transition: background 0.1s;
+border-bottom: 1px solid rgba(13,51,34,0.3);
+}
+.ctx-item:hover { background: rgba(0,255,136,0.08); color: var(–accent); }
+.ctx-separator { height: 1px; background: var(–border); }
+
+/* Notification */
+#notification {
+position: fixed;
+top: 60px; right: 16px;
+background: rgba(2,15,8,0.97);
+border: 1px solid var(–accent3);
+padding: 10px 16px;
+font-size: 11px;
+color: var(–accent3);
+z-index: 10001;
+transform: translateX(120%);
+transition: transform 0.3s ease;
+max-width: 260px;
+box-shadow: 0 0 20px rgba(255,68,68,0.2);
+}
+#notification.show { transform: translateX(0); }
+#notification.green { color: var(–accent); border-color: var(–accent); box-shadow: 0 0 20px rgba(0,255,136,0.2); }
+
+/* Modal */
+#modal-overlay {
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.7);
+z-index: 9998;
+display: none;
+align-items: center;
+justify-content: center;
+}
+#modal-overlay.show { display: flex; }
+
+#modal {
+background: rgba(2,15,8,0.99);
+border: 1px solid var(–border);
+width: 500px;
+max-width: 95vw;
+max-height: 80vh;
+overflow-y: auto;
+box-shadow: 0 0 60px rgba(0,0,0,0.9);
+}
+
+.modal-header {
+padding: 14px 16px;
+border-bottom: 1px solid var(–border);
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+.modal-title {
+font-family: ‘Orbitron’, monospace;
+font-size: 13px;
+color: var(–accent);
+letter-spacing: 2px;
+}
+.modal-close {
+cursor: pointer;
+color: var(–muted);
+font-size: 18px;
+transition: color 0.2s;
+background: none;
+border: none;
+}
+.modal-close:hover { color: var(–accent3); }
+.modal-body { padding: 16px; }
+
+.info-row {
+display: flex;
+gap: 8px;
+margin-bottom: 8px;
+font-size: 11px;
+}
+.info-key { color: var(–muted); min-width: 100px; }
+.info-val { color: var(–text); }
+.info-val.accent { color: var(–accent); }
+.info-val.blue { color: var(–accent2); }
+
+/* Typewriter */
+@keyframes typewriter {
+from { width: 0; }
+to { width: 100%; }
+}
+
+.typewriter {
+overflow: hidden;
+white-space: nowrap;
+animation: typewriter 1.5s steps(40) forwards;
+}
+
+/* Corner decorations */
+.corner-tl, .corner-br {
+position: absolute;
+width: 12px; height: 12px;
+pointer-events: none;
+}
+.corner-tl {
+top: 6px; left: 6px;
+border-top: 1px solid var(–accent);
+border-left: 1px solid var(–accent);
+}
+.corner-br {
+bottom: 6px; right: 6px;
+border-bottom: 1px solid var(–accent);
+border-right: 1px solid var(–accent);
+}
+
+.threat-meter {
+padding: 10px 12px;
+border-bottom: 1px solid var(–border);
+}
+.threat-label {
+display: flex;
+justify-content: space-between;
+font-size: 10px;
+color: var(–muted);
+margin-bottom: 6px;
+}
+.threat-level-text {
+font-family: ‘Orbitron’, monospace;
+font-size: 10px;
+}
+.threat-level-text.elevated { color: var(–accent4); }
+.threat-bar {
+height: 6px;
+background: rgba(13,51,34,0.4);
+position: relative;
+overflow: hidden;
+}
+.threat-fill {
+height: 100%;
+background: linear-gradient(90deg, var(–accent) 0%, var(–accent4) 60%, var(–accent3) 100%);
+width: 42%;
+transition: width 2s ease;
+box-shadow: 4px 0 12px rgba(255,170,0,0.6);
+}
+
+/* Waveform */
+.waveform {
+display: flex;
+align-items: center;
+height: 20px;
+gap: 2px;
+padding: 0 12px;
+}
+.wave-bar {
+width: 3px;
+background: var(–accent);
+opacity: 0.6;
+animation: wave 1.2s ease-in-out infinite;
+}
+@keyframes wave {
+0%, 100% { transform: scaleY(0.2); }
+50% { transform: scaleY(1); }
+}
+</style>
+
+</head>
+<body>
+
+<div id="app">
+  <!-- TOP BAR -->
+  <div id="topbar">
+    <div class="logo">SENTINEL<span>//</span>OSINT</div>
+    <div class="topbar-divider"></div>
+    <div id="search-container">
+      <input id="search-input" type="text" placeholder="TARGET COORDINATE / CALLSIGN / ENTITY...">
+      <span class="search-tag" onclick="setSearch('37.4419, -122.1430')">LAT/LON</span>
+      <span class="search-tag" onclick="setSearch('N789UA')">CALLSIGN</span>
+      <span class="search-tag" onclick="setSearch('Building Alpha')">ENTITY</span>
+    </div>
+    <div class="status-cluster">
+      <div class="status-dot"><div class="dot green"></div>SAT UPLINK</div>
+      <div class="status-dot"><div class="dot blue"></div>ADS-B LIVE</div>
+      <div class="status-dot"><div class="dot red"></div>3 ALERTS</div>
+    </div>
+    <div class="clock" id="clock">00:00:00 UTC</div>
+  </div>
+
+  <!-- LEFT SIDEBAR -->
+
+  <div id="sidebar-left">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Intelligence Modules</div>
+      <div class="nav-item active" onclick="switchModule(this, 'map')">
+        <span class="icon">🛰</span> SATELLITE IMAGERY
+        <span class="badge">LIVE</span>
+      </div>
+      <div class="nav-item" onclick="switchModule(this, 'flights')">
+        <span class="icon">✈</span> FLIGHT TRACKING
+        <span class="badge blue">247</span>
+      </div>
+      <div class="nav-item" onclick="switchModule(this, 'cameras')">
+        <span class="icon">📹</span> TRAFFIC CAMERAS
+        <span class="badge">6 FEEDS</span>
+      </div>
+      <div class="nav-item" onclick="switchModule(this, '3d')">
+        <span class="icon">🏗</span> 3D BUILDING SCAN
+      </div>
+      <div class="nav-item" onclick="switchModule(this, 'imagery')">
+        <span class="icon">🔭</span> AERIAL IMAGERY
+        <span class="badge red">NEW</span>
+      </div>
+    </div>
+
+```
+<div class="sidebar-section">
+  <div class="sidebar-label">Active Targets</div>
+
+  <div class="target-item" onclick="focusTarget('37.4419° N, 122.1430° W', 'Facility Alpha')">
+    <div class="t-name">Facility Alpha</div>
+    <div class="t-coords">37.4419° N, 122.1430° W</div>
+    <div class="t-status active">● ACTIVE MONITORING</div>
+  </div>
+  <div class="target-item" onclick="focusTarget('48.8566° N, 2.3522° E', 'Site Bravo')">
+    <div class="t-name">Site Bravo</div>
+    <div class="t-coords">48.8566° N, 2.3522° E</div>
+    <div class="t-status tracking">● TRACKING</div>
+  </div>
+  <div class="target-item" onclick="focusTarget('35.6762° N, 139.6503° E', 'Vector Charlie')">
+    <div class="t-name">Vector Charlie</div>
+    <div class="t-coords">35.6762° N, 139.6503° E</div>
+    <div class="t-status cold">○ COLD</div>
+  </div>
+  <div class="target-item" onclick="focusTarget('51.5074° N, 0.1278° W', 'Echo Station')">
+    <div class="t-name">Echo Station</div>
+    <div class="t-coords">51.5074° N, 0.1278° W</div>
+    <div class="t-status tracking">● TRACKING</div>
+  </div>
+</div>
+
+<div class="sidebar-section">
+  <div class="sidebar-label">Data Sources</div>
+  <div class="nav-item" onclick="showNotification('Connected: OpenStreetMap, Sentinel-2, Landsat-8', true)">
+    <span class="icon">🌐</span> OPEN SAT FEEDS
+  </div>
+  <div class="nav-item" onclick="showNotification('OpenSky Network: 247 aircraft tracked', true)">
+    <span class="icon">📡</span> OPENSKY NETWORK
+  </div>
+  <div class="nav-item" onclick="showNotification('511.org Traffic API: Connected', true)">
+    <span class="icon">🚦</span> 511 TRAFFIC API
+  </div>
+  <div class="nav-item" onclick="showNotification('OSM Buildings + Google Maps 3D: Loaded', true)">
+    <span class="icon">📐</span> OSM 3D BUILDINGS
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- MAIN CONTENT -->
+
+  <div id="main">
+    <div id="tab-bar">
+      <div class="tab active" onclick="switchTab(this, 'map')">🛰 SAT MAP</div>
+      <div class="tab blue" onclick="switchTab(this, 'flights')">✈ ADS-B FLIGHTS</div>
+      <div class="tab" onclick="switchTab(this, 'cameras')">📹 CAMERAS</div>
+      <div class="tab" onclick="switchTab(this, '3d')">🏗 3D SCAN</div>
+      <div class="tab" onclick="switchTab(this, 'imagery')">🔭 AERIAL IMAGERY</div>
+    </div>
+
+```
+<div id="panel-content">
+
+  <!-- MAP PANEL -->
+  <div id="panel-map" class="panel active">
+    <div id="map-container">
+      <canvas id="map-canvas" style="width:100%;height:100%"></canvas>
+      <div class="corner-tl"></div>
+      <div class="corner-br"></div>
+      <div class="map-controls">
+        <button class="map-btn" title="Zoom In" onclick="mapZoom(1.2)">+</button>
+        <button class="map-btn" title="Zoom Out" onclick="mapZoom(0.8)">−</button>
+        <button class="map-btn" title="Reset" onclick="mapReset()">⟲</button>
+        <button class="map-btn" title="Screenshot" onclick="showNotification('Capture saved to session', true)">📷</button>
+        <button class="map-btn" title="Measure" id="btn-measure" onclick="toggleMeasure()">📏</button>
+        <button class="map-btn" title="Full Screen" onclick="showNotification('Fullscreen mode', true)">⤢</button>
+      </div>
+      <div class="map-layer-bar">
+        <span style="font-size:10px;color:var(--muted);margin-right:4px;letter-spacing:2px;">LAYERS:</span>
+        <div class="layer-toggle on" onclick="toggleLayer(this)">🛰 SATELLITE</div>
+        <div class="layer-toggle on blue" onclick="toggleLayer(this)">✈ AIRCRAFT</div>
+        <div class="layer-toggle on orange" onclick="toggleLayer(this)">🚗 TRAFFIC</div>
+        <div class="layer-toggle on red" onclick="toggleLayer(this)">⚠ ALERTS</div>
+        <div class="layer-toggle" onclick="toggleLayer(this)">🌡 THERMAL</div>
+        <div class="layer-toggle" onclick="toggleLayer(this)">📡 SIGNALS</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLIGHTS PANEL -->
+  <div id="panel-flights" class="panel">
+    <div class="flight-toolbar">
+      <span style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-right:4px;">FILTER:</span>
+      <div class="filter-pill on" onclick="this.classList.toggle('on')">ALL</div>
+      <div class="filter-pill" onclick="this.classList.toggle('on')">COMMERCIAL</div>
+      <div class="filter-pill" onclick="this.classList.toggle('on')">MILITARY</div>
+      <div class="filter-pill" onclick="this.classList.toggle('on')">CARGO</div>
+      <div class="filter-pill" onclick="this.classList.toggle('on')">PRIVATE</div>
+      <span style="margin-left:auto;font-size:10px;color:var(--muted)">SOURCE: OPENSKY NETWORK • ADSB.FI • FR24 OPEN</span>
+    </div>
+    <div class="flight-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>CALLSIGN</th>
+            <th>AIRCRAFT</th>
+            <th>FROM → TO</th>
+            <th>ALT (ft)</th>
+            <th>SPEED (kt)</th>
+            <th>HDG</th>
+            <th>COUNTRY</th>
+            <th>STATUS</th>
+          </tr>
+        </thead>
+        <tbody id="flight-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CAMERAS PANEL -->
+  <div id="panel-cameras" class="panel">
+    <!-- Will be populated by JS -->
+  </div>
+
+  <!-- 3D PANEL -->
+  <div id="panel-3d" class="panel">
+    <div class="viewer-3d">
+      <canvas id="canvas3d"></canvas>
+      <div class="viewer-controls">
+        <button class="ctrl-btn active" id="btn-wireframe" onclick="toggle3DMode('wireframe')">WIREFRAME</button>
+        <button class="ctrl-btn" id="btn-solid" onclick="toggle3DMode('solid')">SOLID</button>
+        <button class="ctrl-btn" id="btn-thermal" onclick="toggle3DMode('thermal')">THERMAL</button>
+        <button class="ctrl-btn" onclick="showModal('3D Data', '3D scan sourced from OpenStreetMap Buildings + photogrammetry estimates. Accuracy: ±2m. Last updated: 6h ago. Source: OSM + CityGML.')">ℹ DATA SOURCE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMAGERY PANEL -->
+  <div id="panel-imagery" class="panel">
+    <div class="imagery-toolbar">
+      <span style="font-size:10px;color:var(--muted);letter-spacing:2px;">NADIR IMAGERY:</span>
+      <div class="filter-pill on" onclick="this.classList.toggle('on')">SAT OPTICAL</div>
+      <div class="filter-pill" onclick="this.classList.toggle('on')">SAR RADAR</div>
+      <div class="filter-pill" onclick="this.classList.toggle('on')">INFRARED</div>
+      <div class="filter-pill" onclick="this.classList.toggle('on')">MULTISPECTRAL</div>
+      <span style="margin-left:auto;font-size:10px;color:var(--muted)">Sentinel-2 • Landsat-8 • FIRMS</span>
+    </div>
+    <div class="imagery-grid" id="imagery-grid"></div>
+  </div>
+
+</div>
+```
+
+  </div>
+
+  <!-- RIGHT SIDEBAR -->
+
+  <div id="sidebar-right">
+    <div class="panel-header">
+      THREAT ASSESSMENT
+    </div>
+
+```
+<div class="threat-meter">
+  <div class="threat-label">
+    <span>THREAT LEVEL</span>
+    <span class="threat-level-text elevated">ELEVATED</span>
+  </div>
+  <div class="threat-bar">
+    <div class="threat-fill" id="threat-fill"></div>
+  </div>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-cell">
+    <span class="stat-val" id="stat-aircraft">247</span>
+    <div class="stat-label">Aircraft</div>
+  </div>
+  <div class="stat-cell">
+    <span class="stat-val blue" id="stat-sats">12</span>
+    <div class="stat-label">Sats Overhead</div>
+  </div>
+  <div class="stat-cell">
+    <span class="stat-val orange" id="stat-vehicles">1,842</span>
+    <div class="stat-label">Vehicles</div>
+  </div>
+  <div class="stat-cell">
+    <span class="stat-val red" id="stat-alerts">3</span>
+    <div class="stat-label">Active Alerts</div>
+  </div>
+</div>
+
+<div id="mini-map">
+  <canvas id="minimap-canvas" style="width:100%;height:100%"></canvas>
+</div>
+
+<div class="panel-header">
+  SIGNAL ANALYSIS
+  <span class="count">LIVE</span>
+</div>
+<div class="waveform" id="waveform"></div>
+
+<div class="analysis-block">
+  <div class="analysis-title">PATTERN ANALYSIS</div>
+  <div class="prog-item">
+    <div class="prog-label"><span>Aircraft Density</span><span>68%</span></div>
+    <div class="prog-bar"><div class="prog-fill green" style="width:68%"></div></div>
+  </div>
+  <div class="prog-item">
+    <div class="prog-label"><span>Traffic Volume</span><span>41%</span></div>
+    <div class="prog-bar"><div class="prog-fill blue" style="width:41%"></div></div>
+  </div>
+  <div class="prog-item">
+    <div class="prog-label"><span>SAT Coverage</span><span>92%</span></div>
+    <div class="prog-bar"><div class="prog-fill orange" style="width:92%"></div></div>
+  </div>
+  <div class="prog-item">
+    <div class="prog-label"><span>Anomaly Score</span><span>23%</span></div>
+    <div class="prog-bar"><div class="prog-fill red" style="width:23%"></div></div>
+  </div>
+</div>
+
+<div class="panel-header">
+  INTEL FEED
+  <span class="count" id="intel-count">0</span>
+</div>
+<div id="intel-feed"></div>
+```
+
+  </div>
+
+  <!-- BOTTOM BAR -->
+
+  <div id="bottombar">
+    <div class="bottom-item">SYS: ONLINE</div>
+    <div class="bottom-item accent">▸ SESSION ACTIVE</div>
+    <div class="bottom-item">LATENCY: <span id="latency" style="color:var(--accent)">12ms</span></div>
+    <div class="bottom-item">DATA RATE: <span id="datarate" style="color:var(--accent2)">2.4 MB/s</span></div>
+    <div class="bottom-item red">⚠ UNVERIFIED DATA — FOR RESEARCH USE ONLY</div>
+    <div id="coords-display" id="coords">37.4419° N 122.1430° W</div>
+  </div>
+</div>
+
+<!-- Context Menu -->
+
+<div id="context-menu">
+  <div class="ctx-item" onclick="showNotification('Coordinates copied', true)">📋 Copy Coordinates</div>
+  <div class="ctx-item" onclick="showModal('Add Target', 'Add this location to your active targets list for continuous monitoring.')">📌 Add as Target</div>
+  <div class="ctx-item" onclick="showNotification('Requesting satellite pass...', true)">🛰 Request Satellite Pass</div>
+  <div class="ctx-separator"></div>
+  <div class="ctx-item" onclick="showNotification('Nearest cameras: 3 found', true)">📹 Find Nearby Cameras</div>
+  <div class="ctx-item" onclick="switchTab(document.querySelector('.tab'), '3d')">🏗 View 3D Model</div>
+  <div class="ctx-separator"></div>
+  <div class="ctx-item" onclick="hideContextMenu()">✕ Cancel</div>
+</div>
+
+<!-- Notification -->
+
+<div id="notification"></div>
+
+<!-- Modal -->
+
+<div id="modal-overlay" onclick="hideModal()">
+  <div id="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">DETAIL VIEW</div>
+      <button class="modal-close" onclick="hideModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ─── CLOCK ───
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getUTCHours()).padStart(2,'0');
+  const m = String(now.getUTCMinutes()).padStart(2,'0');
+  const s = String(now.getUTCSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${h}:${m}:${s} UTC`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ─── TAB / MODULE SWITCHING ───
+function switchTab(el, panel) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + panel).classList.add('active');
+  if (panel === '3d') initCanvas3D();
+  if (panel === 'map') initMap();
+}
+
+function switchModule(el, panel) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  const tabEls = document.querySelectorAll('.tab');
+  const panelMap = ['map','flights','cameras','3d','imagery'];
+  const idx = panelMap.indexOf(panel);
+  if (idx >= 0) {
+    tabEls.forEach(t => t.classList.remove('active'));
+    tabEls[idx].classList.add('active');
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + panel).classList.add('active');
+    if (panel === '3d') initCanvas3D();
+    if (panel === 'map') initMap();
+  }
+}
+
+// ─── NOTIFICATIONS ───
+let notifTimer;
+function showNotification(msg, success = false) {
+  const n = document.getElementById('notification');
+  n.textContent = msg;
+  n.className = 'show' + (success ? ' green' : '');
+  clearTimeout(notifTimer);
+  notifTimer = setTimeout(() => n.classList.remove('show'), 3000);
+}
+
+// ─── MODAL ───
+function showModal(title, body) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function hideModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+}
+
+// ─── CONTEXT MENU ───
+const mapCanvas = document.getElementById('map-canvas');
+document.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  const menu = document.getElementById('context-menu');
+  menu.style.left = e.clientX + 'px';
+  menu.style.top = e.clientY + 'px';
+  menu.classList.add('show');
+});
+document.addEventListener('click', hideContextMenu);
+function hideContextMenu() {
+  document.getElementById('context-menu').classList.remove('show');
+}
+
+// ─── SEARCH ───
+function setSearch(val) {
+  document.getElementById('search-input').value = val;
+  showNotification('Searching: ' + val, true);
+}
+document.getElementById('search-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    showNotification('Querying all sources: ' + e.target.value, true);
+    addIntelItem('SEARCH', `Query initiated: ${e.target.value}`, 'sat');
+  }
+});
+
+// ─── FOCUS TARGET ───
+function focusTarget(coords, name) {
+  document.getElementById('coords-display').textContent = coords;
+  showNotification(`Focusing on ${name}`, true);
+  addIntelItem('TARGET', `Focused on ${name} — ${coords}`, 'sat');
+}
+
+// ─── MAP CANVAS ───
+let mapScale = 1;
+let mapAnimate;
+let mapCtx;
+let showAircraft = true, showTraffic = true, showAlerts = true;
+let measuring = false;
+let aircraft = [];
+let traffic_pts = [];
+let alert_pts = [];
+
+function initMap() {
+  const canvas = document.getElementById('map-canvas');
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  mapCtx = canvas.getContext('2d');
+  if (!aircraft.length) spawnSimObjects(canvas.width, canvas.height);
+  drawMap();
+}
+
+function spawnSimObjects(w, h) {
+  aircraft = Array.from({length: 18}, () => ({
+    x: Math.random() * w, y: Math.random() * h,
+    vx: (Math.random()-0.5)*0.8, vy: (Math.random()-0.5)*0.8,
+    trail: [], type: Math.random() > 0.8 ? 'mil' : 'com'
+  }));
+  traffic_pts = Array.from({length: 40}, () => ({
+    x: Math.random() * w, y: Math.random() * h,
+    vx: (Math.random()-0.5)*1.2, vy: (Math.random()-0.5)*1.2
+  }));
+  alert_pts = [
+    {x: w*0.3, y: h*0.4, r: 0},
+    {x: w*0.65, y: h*0.6, r: 0},
+    {x: w*0.5, y: h*0.25, r: 0}
+  ];
+}
+
+function drawMap() {
+  cancelAnimationFrame(mapAnimate);
+  const canvas = document.getElementById('map-canvas');
+  if (!canvas || !mapCtx) return;
+  const w = canvas.width, h = canvas.height;
+
+  mapCtx.clearRect(0, 0, w, h);
+
+  // Base: dark terrain sim
+  const base = mapCtx.createLinearGradient(0, 0, w, h);
+  base.addColorStop(0, '#010f06');
+  base.addColorStop(0.5, '#020d05');
+  base.addColorStop(1, '#010a04');
+  mapCtx.fillStyle = base;
+  mapCtx.fillRect(0, 0, w, h);
+
+  // Grid
+  mapCtx.strokeStyle = 'rgba(0,255,136,0.04)';
+  mapCtx.lineWidth = 1;
+  for (let x = 0; x < w; x += 60) {
+    mapCtx.beginPath(); mapCtx.moveTo(x,0); mapCtx.lineTo(x,h); mapCtx.stroke();
+  }
+  for (let y = 0; y < h; y += 60) {
+    mapCtx.beginPath(); mapCtx.moveTo(0,y); mapCtx.lineTo(w,y); mapCtx.stroke();
+  }
+
+  // "landmass" blobs
+  const lands = [
+    {x:w*0.2, y:h*0.3, rx:120, ry:80, color:'rgba(0,80,30,0.35)'},
+    {x:w*0.55, y:h*0.5, rx:100, ry:60, color:'rgba(0,60,20,0.3)'},
+    {x:w*0.75, y:h*0.2, rx:80, ry:50, color:'rgba(0,70,25,0.28)'},
+    {x:w*0.35, y:h*0.7, rx:90, ry:55, color:'rgba(0,50,15,0.25)'},
+  ];
+  lands.forEach(l => {
+    const g = mapCtx.createRadialGradient(l.x,l.y,0,l.x,l.y,Math.max(l.rx,l.ry));
+    g.addColorStop(0, l.color);
+    g.addColorStop(1, 'transparent');
+    mapCtx.beginPath();
+    mapCtx.ellipse(l.x, l.y, l.rx, l.ry, 0, 0, Math.PI*2);
+    mapCtx.fillStyle = g;
+    mapCtx.fill();
+  });
+
+  // "water" areas
+  mapCtx.fillStyle = 'rgba(0,50,120,0.15)';
+  mapCtx.beginPath(); mapCtx.ellipse(w*0.85, h*0.75, 100, 60, 0.2, 0, Math.PI*2); mapCtx.fill();
+  mapCtx.beginPath(); mapCtx.ellipse(w*0.12, h*0.65, 70, 40, -0.3, 0, Math.PI*2); mapCtx.fill();
+
+  // Alert rings
+  if (showAlerts) {
+    alert_pts.forEach(a => {
+      a.r = (a.r + 0.4) % 60;
+      [a.r, a.r*0.6, a.r*0.3].forEach((r,i) => {
+        mapCtx.beginPath();
+        mapCtx.arc(a.x, a.y, r+1, 0, Math.PI*2);
+        mapCtx.strokeStyle = `rgba(255,68,68,${0.5 - i*0.15 - r/120})`;
+        mapCtx.lineWidth = 1;
+        mapCtx.stroke();
+      });
+      // Alert dot
+      mapCtx.beginPath();
+      mapCtx.arc(a.x, a.y, 4, 0, Math.PI*2);
+      mapCtx.fillStyle = 'rgba(255,68,68,0.9)';
+      mapCtx.shadowColor = '#ff4444';
+      mapCtx.shadowBlur = 10;
+      mapCtx.fill();
+      mapCtx.shadowBlur = 0;
+    });
+  }
+
+  // Traffic dots
+  if (showTraffic) {
+    traffic_pts.forEach(v => {
+      v.x += v.vx; v.y += v.vy;
+      if (v.x < 0 || v.x > w) v.vx *= -1;
+      if (v.y < 0 || v.y > h) v.vy *= -1;
+      mapCtx.beginPath();
+      mapCtx.arc(v.x, v.y, 2, 0, Math.PI*2);
+      mapCtx.fillStyle = 'rgba(255,170,0,0.6)';
+      mapCtx.fill();
+    });
+  }
+
+  // Aircraft
+  if (showAircraft) {
+    aircraft.forEach(a => {
+      a.x += a.vx; a.y += a.vy;
+      if (a.x < 0) { a.x = 0; a.vx *= -1; }
+      if (a.x > w) { a.x = w; a.vx *= -1; }
+      if (a.y < 0) { a.y = 0; a.vy *= -1; }
+      if (a.y > h) { a.y = h; a.vy *= -1; }
+      a.trail.push({x:a.x, y:a.y});
+      if (a.trail.length > 20) a.trail.shift();
+      // Trail
+      if (a.trail.length > 1) {
+        mapCtx.beginPath();
+        a.trail.forEach((p,i) => i===0 ? mapCtx.moveTo(p.x,p.y) : mapCtx.lineTo(p.x,p.y));
+        mapCtx.strokeStyle = a.type === 'mil' ? 'rgba(0,204,255,0.3)' : 'rgba(0,255,136,0.25)';
+        mapCtx.lineWidth = 1;
+        mapCtx.stroke();
+      }
+      // Plane icon
+      mapCtx.save();
+      mapCtx.translate(a.x, a.y);
+      mapCtx.rotate(Math.atan2(a.vy, a.vx));
+      mapCtx.fillStyle = a.type === 'mil' ? 'rgba(0,200,255,0.9)' : 'rgba(0,255,136,0.9)';
+      mapCtx.shadowColor = a.type === 'mil' ? '#00ccff' : '#00ff88';
+      mapCtx.shadowBlur = 6;
+      mapCtx.beginPath();
+      mapCtx.moveTo(6,0); mapCtx.lineTo(-4,3); mapCtx.lineTo(-2,0); mapCtx.lineTo(-4,-3); mapCtx.closePath();
+      mapCtx.fill();
+      mapCtx.shadowBlur = 0;
+      mapCtx.restore();
+    });
+  }
+
+  // Crosshair target
+  const tx = w*0.45, ty = h*0.42;
+  mapCtx.strokeStyle = 'rgba(0,255,136,0.7)';
+  mapCtx.lineWidth = 1;
+  [[tx-16,ty,tx-6,ty],[tx+6,ty,tx+16,ty],[tx,ty-16,tx,ty-6],[tx,ty+6,tx,ty+16]].forEach(([x1,y1,x2,y2]) => {
+    mapCtx.beginPath(); mapCtx.moveTo(x1,y1); mapCtx.lineTo(x2,y2); mapCtx.stroke();
+  });
+  mapCtx.beginPath(); mapCtx.arc(tx,ty,10,0,Math.PI*2);
+  mapCtx.strokeStyle = 'rgba(0,255,136,0.5)'; mapCtx.stroke();
+
+  // Coordinate labels
+  mapCtx.font = '9px "Share Tech Mono"';
+  mapCtx.fillStyle = 'rgba(0,255,136,0.4)';
+  for (let i = 1; i < 4; i++) {
+    const lat = (60 - i*15).toFixed(1);
+    mapCtx.fillText(`${lat}°N`, 4, h*i/4);
+  }
+
+  mapAnimate = requestAnimationFrame(drawMap);
+}
+
+function toggleLayer(el) {
+  el.classList.toggle('on');
+  const txt = el.textContent;
+  if (txt.includes('AIRCRAFT')) showAircraft = el.classList.contains('on');
+  if (txt.includes('TRAFFIC')) showTraffic = el.classList.contains('on');
+  if (txt.includes('ALERTS')) showAlerts = el.classList.contains('on');
+}
+
+function mapZoom(factor) { mapScale *= factor; showNotification(`Zoom: ${(mapScale*100).toFixed(0)}%`, true); }
+function mapReset() { mapScale = 1; showNotification('View reset', true); }
+function toggleMeasure() {
+  measuring = !measuring;
+  document.getElementById('btn-measure').style.color = measuring ? 'var(--accent)' : '';
+  showNotification(measuring ? 'Measure mode ON — click two points' : 'Measure mode OFF', true);
+}
+
+// Mouse coords on map
+document.getElementById('map-canvas').addEventListener('mousemove', e => {
+  const r = e.target.getBoundingClientRect();
+  const px = (e.clientX - r.left) / r.width;
+  const py = (e.clientY - r.top) / r.height;
+  const lat = (90 - py * 180).toFixed(4);
+  const lon = (px * 360 - 180).toFixed(4);
+  document.getElementById('coords-display').textContent = `${lat}° ${lat>0?'N':'S'} ${Math.abs(lon)}° ${lon>0?'E':'W'}`;
+});
+
+// ─── FLIGHT TABLE ───
+const callsigns = ['UAL789','BAW442','DLH33X','AFR891','AAL123','SWA445','EZY721','RYR3344','KLM77W','QFA9','SIA12','CPA834','UAE001','THY444','JAL92','DFT22'];
+const types = ['B738','A320','B777','A380','E190','B737','A321','B787','A220','B747'];
+const airports = ['JFK','LHR','CDG','FRA','LAX','DXB','NRT','SYD','ORD','MIA'];
+const countries = ['🇺🇸','🇬🇧','🇫🇷','🇩🇪','🇦🇺','🇦🇪','🇯🇵','🇸🇬','🇳🇱','🇨🇳'];
+
+function buildFlightTable() {
+  const tbody = document.getElementById('flight-tbody');
+  const rows = callsigns.map((cs, i) => {
+    const alt = (15000 + Math.random()*25000)|0;
+    const spd = (320 + Math.random()*200)|0;
+    const hdg = (Math.random()*360)|0;
+    return `<tr onclick="showFlightDetail('${cs}', ${alt}, ${spd}, ${hdg})">
+      <td class="td-callsign">${cs}</td>
+      <td class="td-type">${types[i%types.length]}</td>
+      <td>${airports[Math.random()*airports.length|0]} → ${airports[Math.random()*airports.length|0]}</td>
+      <td class="td-alt">${alt.toLocaleString()}</td>
+      <td class="td-speed">${spd}</td>
+      <td>${hdg}°</td>
+      <td>${countries[i%countries.length]}</td>
+      <td style="color:var(--accent)">LIVE</td>
+    </tr>`;
+  });
+  tbody.innerHTML = rows.join('');
+}
+
+function showFlightDetail(cs, alt, spd, hdg) {
+  showModal(`FLIGHT: ${cs}`, `
+    <div class="info-row"><span class="info-key">CALLSIGN</span><span class="info-val accent">${cs}</span></div>
+    <div class="info-row"><span class="info-key">ALTITUDE</span><span class="info-val">${alt.toLocaleString()} ft</span></div>
+    <div class="info-row"><span class="info-key">GROUND SPD</span><span class="info-val">${spd} kt</span></div>
+    <div class="info-row"><span class="info-key">HEADING</span><span class="info-val">${hdg}°</span></div>
+    <div class="info-row"><span class="info-key">SOURCE</span><span class="info-val blue">OpenSky Network</span></div>
+    <div class="info-row"><span class="info-key">SQUAWK</span><span class="info-val">${(Math.random()*7777|0).toString().padStart(4,'0')}</span></div>
+    <div class="info-row"><span class="info-key">ADS-B MSGS</span><span class="info-val">${(Math.random()*5000|0).toLocaleString()}</span></div>
+    <br><div style="font-size:10px;color:var(--muted)">DATA SOURCE: OpenSky Network (opensky-network.org) — Live ADS-B aggregation. For research/educational purposes only.</div>
+  `);
+}
+
+buildFlightTable();
+setInterval(() => {
+  // Animate some values
+  document.querySelectorAll('#flight-tbody td.td-alt').forEach(td => {
+    let v = parseInt(td.textContent.replace(/,/g,''));
+    v += (Math.random()-0.5)*200|0;
+    td.textContent = Math.max(5000, v).toLocaleString();
+  });
+}, 3000);
+
+// ─── CAMERAS ───
+const camData = [
+  {id:'CAM-001', loc:'Main St & 5th Ave', featured: true},
+  {id:'CAM-047', loc:'Harbor Bridge North'},
+  {id:'CAM-103', loc:'Airport Terminal B'},
+  {id:'CAM-218', loc:'Industrial Zone East'},
+  {id:'CAM-315', loc:'City Center Loop'},
+];
+
+function buildCameras() {
+  const panel = document.getElementById('panel-cameras');
+  panel.innerHTML = '';
+  camData.forEach((cam, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'cam-cell' + (i===0?' featured':'');
+    const canvas = document.createElement('canvas');
+    canvas.className = 'cam-canvas';
+    canvas.dataset.idx = i;
+    cell.appendChild(canvas);
+
+    const overlay = document.createElement('div');
+    overlay.className = 'cam-overlay';
+    overlay.innerHTML = `
+      <div class="cam-header">
+        <div class="cam-id">${cam.id}</div>
+        <div class="cam-live"><span style="width:5px;height:5px;background:var(--accent3);border-radius:50%;animation:pulse 1s infinite"></span>LIVE</div>
+      </div>
+      <div class="cam-footer">${cam.loc}</div>
+    `;
+    cell.appendChild(overlay);
+    cell.onclick = () => showModal(cam.id, `
+      <div class="info-row"><span class="info-key">CAMERA ID</span><span class="info-val accent">${cam.id}</span></div>
+      <div class="info-row"><span class="info-key">LOCATION</span><span class="info-val">${cam.loc}</span></div>
+      <div class="info-row"><span class="info-key">STATUS</span><span class="info-val" style="color:var(--accent3)">LIVE</span></div>
+      <div class="info-row"><span class="info-key">SOURCE</span><span class="info-val blue">511.org / OpenCCTV</span></div>
+      <br><div style="font-size:10px;color:var(--muted)">Source: 511 Traffic API, state DOT feeds, and open camera registries. Data simulated for demo.</div>
+    `);
+    panel.appendChild(cell);
+
+    // Size canvas
+    requestAnimationFrame(() => {
+      canvas.width = cell.offsetWidth;
+      canvas.height = cell.offsetHeight;
+      animateCam(canvas, i);
+    });
+  });
+}
+
+function animateCam(canvas, idx) {
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  let t = 0;
+  const vehicles = Array.from({length: idx===0?8:3}, () => ({
+    x: Math.random()*w, y: Math.random()*h,
+    vx: (Math.random()-0.5)*1.5, vy: (Math.random()-0.5)*0.5,
+    size: 4+Math.random()*6
+  }));
+  const noise = [];
+  for (let i=0;i<200;i++) noise.push({x:Math.random()*w,y:Math.random()*h,a:Math.random()*0.05});
+
+  function frame() {
+    ctx.fillStyle = '#0a1a0e';
+    ctx.fillRect(0,0,w,h);
+
+    // Road lines
+    ctx.strokeStyle = 'rgba(0,255,136,0.08)';
+    ctx.lineWidth = 1;
+    for (let y=h*0.3;y<h;y+=h*0.15) {
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke();
+    }
+    // Vertical
+    ctx.beginPath(); ctx.moveTo(w/3,0); ctx.lineTo(w/3,h); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(2*w/3,0); ctx.lineTo(2*w/3,h); ctx.stroke();
+
+    // Timestamp burn-in
+    ctx.font = `${idx===0?11:8}px "Share Tech Mono"`;
+    ctx.fillStyle = 'rgba(0,255,136,0.5)';
+    const d = new Date();
+    ctx.fillText(`${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`, 6, h-6);
+
+    // Vehicles
+    vehicles.forEach(v => {
+      v.x += v.vx; v.y += v.vy;
+      if (v.x<0||v.x>w) v.vx*=-1;
+      if (v.y<0||v.y>h) v.vy*=-1;
+      ctx.fillStyle = 'rgba(255,220,50,0.8)';
+      ctx.shadowColor='#ffcc00';ctx.shadowBlur=4;
+      ctx.fillRect(v.x,v.y,v.size,v.size/2);
+      ctx.shadowBlur=0;
+    });
+
+    // Noise grain
+    noise.forEach(n => {
+      n.x += (Math.random()-0.5)*0.5; n.y += (Math.random()-0.5)*0.5;
+      if(n.x<0)n.x=w;if(n.x>w)n.x=0;
+      ctx.fillStyle = `rgba(0,255,100,${n.a*(0.5+0.5*Math.sin(t*0.05))})`;
+      ctx.fillRect(n.x,n.y,1,1);
+    });
+
+    // Scan line
+    const scanY = (t % h);
+    ctx.fillStyle = 'rgba(0,255,136,0.03)';
+    ctx.fillRect(0, scanY, w, 2);
+
+    t++;
+    requestAnimationFrame(frame);
+  }
+  frame();
+}
+
+// ─── 3D CANVAS ───
+let c3d, c3dCtx, c3dMode = 'wireframe', c3dAngle = 0;
+let c3dAnim;
+
+function initCanvas3D() {
+  c3d = document.getElementById('canvas3d');
+  c3d.width = c3d.offsetWidth;
+  c3d.height = c3d.offsetHeight;
+  c3dCtx = c3d.getContext('2d');
+  cancelAnimationFrame(c3dAnim);
+  draw3D();
+}
+
+function toggle3DMode(mode) {
+  c3dMode = mode;
+  document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-' + mode).classList.add('active');
+}
+
+function project(x, y, z, w, h, angle) {
+  const cos = Math.cos(angle), sin = Math.sin(angle);
+  const rx = x * cos - z * sin;
+  const rz = x * sin + z * cos;
+  const fov = 400;
+  const dist = fov / (fov + rz + 200);
+  return { x: w/2 + rx * dist, y: h/2 - y * dist, d: rz };
+}
+
+function draw3D() {
+  if (!c3dCtx) return;
+  const w = c3d.width, h = c3d.height;
+  c3dCtx.clearRect(0,0,w,h);
+  c3dCtx.fillStyle = '#010a04';
+  c3dCtx.fillRect(0,0,w,h);
+
+  // Ground grid
+  c3dCtx.strokeStyle = 'rgba(0,255,136,0.07)';
+  c3dCtx.lineWidth = 1;
+  for (let i=-6;i<=6;i++) {
+    const a = project(i*40, 0, -240, w, h, c3dAngle);
+    const b = project(i*40, 0, 240, w, h, c3dAngle);
+    c3dCtx.beginPath(); c3dCtx.moveTo(a.x,a.y); c3dCtx.lineTo(b.x,b.y); c3dCtx.stroke();
+    const c = project(-240, 0, i*40, w, h, c3dAngle);
+    const d_ = project(240, 0, i*40, w, h, c3dAngle);
+    c3dCtx.beginPath(); c3dCtx.moveTo(c.x,c.y); c3dCtx.lineTo(d_.x,d_.y); c3dCtx.stroke();
+  }
+
+  // Buildings
+  const buildings = [
+    {x:-80, z:-60, w:50, d:50, h:180, label:'BLDG A'},
+    {x:20,  z:-80, w:40, d:40, h:120, label:'BLDG B'},
+    {x:100, z:-40, w:60, d:45, h:200, label:'BLDG C'},
+    {x:-30, z:50,  w:70, d:60, h:90,  label:'BLDG D'},
+    {x:80,  z:80,  w:45, d:45, h:140, label:'BLDG E'},
+    {x:-120,z:20,  w:35, d:35, h:80,  label:'BLDG F'},
+  ];
+
+  buildings.forEach(b => {
+    const pts = [
+      {x:b.x-b.w/2, y:0,    z:b.z-b.d/2},
+      {x:b.x+b.w/2, y:0,    z:b.z-b.d/2},
+      {x:b.x+b.w/2, y:0,    z:b.z+b.d/2},
+      {x:b.x-b.w/2, y:0,    z:b.z+b.d/2},
+      {x:b.x-b.w/2, y:b.h,  z:b.z-b.d/2},
+      {x:b.x+b.w/2, y:b.h,  z:b.z-b.d/2},
+      {x:b.x+b.w/2, y:b.h,  z:b.z+b.d/2},
+      {x:b.x-b.w/2, y:b.h,  z:b.z+b.d/2},
+    ].map(p => project(p.x, p.y, p.z, w, h, c3dAngle));
+
+    const faces = [
+      [4,5,6,7], // top
+      [0,1,5,4], // front
+      [1,2,6,5], // right
+      [3,2,6,7], // back
+      [0,3,7,4], // left
+    ];
+
+    faces.forEach((face,fi) => {
+      const ps = face.map(i => pts[i]);
+      c3dCtx.beginPath();
+      c3dCtx.moveTo(ps[0].x, ps[0].y);
+      ps.forEach(p => c3dCtx.lineTo(p.x, p.y));
+      c3dCtx.closePath();
+
+      if (c3dMode === 'wireframe') {
+        c3dCtx.strokeStyle = 'rgba(0,255,136,0.7)';
+        c3dCtx.lineWidth = 0.8;
+        c3dCtx.stroke();
+      } else if (c3dMode === 'solid') {
+        const alpha = fi === 0 ? 0.6 : fi === 1 ? 0.3 : 0.2;
+        c3dCtx.fillStyle = `rgba(0,80,40,${alpha})`;
+        c3dCtx.fill();
+        c3dCtx.strokeStyle = 'rgba(0,255,136,0.3)';
+        c3dCtx.lineWidth = 0.5;
+        c3dCtx.stroke();
+      } else { // thermal
+        const temps = [0.9, 0.6, 0.4, 0.2, 0.5];
+        const t = temps[fi];
+        const r = t > 0.5 ? 255 : (t*2*255)|0;
+        const g = t < 0.5 ? 0 : ((t-0.5)*2*255)|0;
+        c3dCtx.fillStyle = `rgba(${r},${g},0,${fi===0?0.8:0.5})`;
+        c3dCtx.fill();
+        c3dCtx.strokeStyle = 'rgba(255,200,0,0.2)';
+        c3dCtx.lineWidth = 0.5;
+        c3dCtx.stroke();
+      }
+    });
+
+    // Label
+    const top = pts[7];
+    c3dCtx.font = '9px "Share Tech Mono"';
+    c3dCtx.fillStyle = 'rgba(0,255,136,0.7)';
+    c3dCtx.fillText(b.label, top.x-15, top.y-5);
+  });
+
+  c3dAngle += 0.003;
+  c3dAnim = requestAnimationFrame(draw3D);
+}
+
+// ─── AERIAL IMAGERY ───
+function buildImageryGrid() {
+  const grid = document.getElementById('imagery-grid');
+  const types = [
+    {label:'OPTICAL', color:'#00ff88', secondary:'#003020'},
+    {label:'SAR', color:'#00ccff', secondary:'#001535'},
+    {label:'IR', color:'#ff4444', secondary:'#300010'},
+    {label:'NDVI', color:'#88ff00', secondary:'#102000'},
+    {label:'THERMAL', color:'#ffaa00', secondary:'#301500'},
+    {label:'OPTICAL', color:'#00ff88', secondary:'#003020'},
+  ];
+  const dates = ['2026-02-19','2026-02-17','2026-02-15','2026-02-12','2026-02-10','2026-02-08'];
+  grid.innerHTML = '';
+  types.forEach((t, i) => {
+    const tile = document.createElement('div');
+    tile.className = 'img-tile';
+    const canvas = document.createElement('canvas');
+    canvas.className = 'img-canvas';
+    canvas.dataset.idx = i;
+    tile.appendChild(canvas);
+    tile.innerHTML += `<div class="img-meta">${t.label} • ${dates[i]}</div>`;
+    tile.onclick = () => showModal(`SAT IMAGERY: ${t.label}`, `
+      <div class="info-row"><span class="info-key">TYPE</span><span class="info-val accent">${t.label}</span></div>
+      <div class="info-row"><span class="info-key">DATE</span><span class="info-val">${dates[i]}</span></div>
+      <div class="info-row"><span class="info-key">RESOLUTION</span><span class="info-val">10m/px (Sentinel-2)</span></div>
+      <div class="info-row"><span class="info-key">CLOUD COVER</span><span class="info-val">${(Math.random()*30|0)}%</span></div>
+      <div class="info-row"><span class="info-key">SOURCE</span><span class="info-val blue">ESA Copernicus / Landsat-8</span></div>
+      <br><div style="font-size:10px;color:var(--muted)">Source: Copernicus Open Access Hub, USGS EarthExplorer, NASA Earthdata. Available via SentinelHub or manually.</div>
+    `);
+    grid.appendChild(tile);
+
+    requestAnimationFrame(() => {
+      canvas.width = tile.offsetWidth || 200;
+      canvas.height = tile.offsetHeight || 200;
+      drawImageryTile(canvas, t);
+    });
+  });
+}
+
+function drawImageryTile(canvas, t) {
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+
+  ctx.fillStyle = t.secondary;
+  ctx.fillRect(0,0,w,h);
+
+  // Random terrain patches
+  for (let i=0;i<12;i++) {
+    const x = Math.random()*w, y = Math.random()*h;
+    const r = 10+Math.random()*40;
+    const g = ctx.createRadialGradient(x,y,0,x,y,r);
+    g.addColorStop(0, t.color.replace(')', `,${0.1+Math.random()*0.25})`).replace('rgb(','rgba(').replace('#','rgba(').replace(/([0-9a-f]{2})/gi, (m,p) => parseInt(p,16)+','));
+    // Simplified:
+    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fillStyle = `${t.color}${Math.round((0.05+Math.random()*0.15)*255).toString(16).padStart(2,'0')}`;
+    ctx.fill();
+  }
+
+  // Grid overlay
+  ctx.strokeStyle = `${t.color}18`;
+  for (let x=0;x<w;x+=20) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+  for (let y=0;y<h;y+=20) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+
+  // "Buildings" blobs
+  for (let i=0;i<8;i++) {
+    const bx = Math.random()*w, by = Math.random()*h;
+    const bw = 6+Math.random()*18, bh = 6+Math.random()*12;
+    ctx.fillStyle = `${t.color}60`;
+    ctx.fillRect(bx-bw/2, by-bh/2, bw, bh);
+  }
+
+  // Crosshair on first
+  if (canvas.dataset.idx === '0') {
+    ctx.strokeStyle = t.color + 'cc';
+    ctx.lineWidth = 1;
+    const cx = w/2, cy = h/2;
+    [[cx-20,cy,cx-6,cy],[cx+6,cy,cx+20,cy],[cx,cy-20,cx,cy-6],[cx,cy+6,cx,cy+20]].forEach(([x1,y1,x2,y2]) => {
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    });
+  }
+
+  ctx.font = '8px "Share Tech Mono"';
+  ctx.fillStyle = t.color + '66';
+  ctx.fillText(`SEN-2 ${w}px`, 3, h-3);
+}
+
+// ─── MINI MAP ───
+function initMiniMap() {
+  const canvas = document.getElementById('minimap-canvas');
+  canvas.width = canvas.offsetWidth || 260;
+  canvas.height = canvas.offsetHeight || 140;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+
+  const dots = Array.from({length:6}, () => ({
+    x: Math.random()*w, y: Math.random()*h,
+    r: 0, pulse: Math.random()*Math.PI*2
+  }));
+
+  function frame() {
+    ctx.fillStyle = '#010a04';
+    ctx.fillRect(0,0,w,h);
+    ctx.strokeStyle = 'rgba(0,255,136,0.05)';
+    for (let x=0;x<w;x+=20) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+    for (let y=0;y<h;y+=20) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+
+    dots.forEach(d => {
+      d.pulse += 0.04;
+      const r = 8 + 4*Math.sin(d.pulse);
+      ctx.beginPath(); ctx.arc(d.x,d.y,r,0,Math.PI*2);
+      ctx.strokeStyle = `rgba(0,255,136,${0.2+0.1*Math.sin(d.pulse)})`;
+      ctx.lineWidth=1; ctx.stroke();
+      ctx.beginPath(); ctx.arc(d.x,d.y,2,0,Math.PI*2);
+      ctx.fillStyle = 'rgba(0,255,136,0.9)';
+      ctx.shadowColor='#00ff88'; ctx.shadowBlur=6; ctx.fill(); ctx.shadowBlur=0;
+    });
+    requestAnimationFrame(frame);
+  }
+  frame();
+}
+
+// ─── WAVEFORM ───
+function buildWaveform() {
+  const wf = document.getElementById('waveform');
+  for (let i=0;i<40;i++) {
+    const bar = document.createElement('div');
+    bar.className = 'wave-bar';
+    const h = 4 + Math.random()*16;
+    bar.style.height = h+'px';
+    bar.style.animationDelay = (i*0.04) + 's';
+    bar.style.animationDuration = (0.8+Math.random()*0.8)+'s';
+    wf.appendChild(bar);
+  }
+}
+
+// ─── INTEL FEED ───
+const intelMessages = [
+  {txt:'Satellite pass over target Alpha in 12 min', cat:'sat'},
+  {txt:'ADS-B: Unknown transponder detected NW quadrant', cat:'alert'},
+  {txt:'Traffic anomaly: I-280 congestion spike +340%', cat:'cam'},
+  {txt:'Sentinel-2 image acquired: 0% cloud cover', cat:'sat'},
+  {txt:'Aircraft UAL789 entered restricted airspace', cat:'alert'},
+  {txt:'Camera CAM-047 motion event detected', cat:'cam'},
+  {txt:'Landsat-8 pass complete: 10m resolution ready', cat:'sat'},
+  {txt:'7 new aircraft appeared in ADS-B feed', cat:'air'},
+  {txt:'Signal anomaly at 37.44°N — investigation req.', cat:'alert'},
+  {txt:'3D scan updated: Building C footprint change', cat:'sat'},
+  {txt:'OpenSky: 247 aircraft tracked in AOI', cat:'air'},
+  {txt:'Traffic camera CAM-001 resumed after downtime', cat:'cam'},
+];
+
+let intelCount = 0;
+function addIntelItem(label, text, cat) {
+  const feed = document.getElementById('intel-feed');
+  const now = new Date();
+  const time = `${now.getUTCHours().toString().padStart(2,'0')}:${now.getUTCMinutes().toString().padStart(2,'0')}:${now.getUTCSeconds().toString().padStart(2,'0')}Z`;
+  const item = document.createElement('div');
+  item.className = 'intel-item';
+  item.innerHTML = `
+    <div class="intel-time"><span>${time}</span><span class="intel-category ${cat}">${label}</span></div>
+    <div class="intel-text">${text}</div>
+  `;
+  feed.insertBefore(item, feed.firstChild);
+  intelCount++;
+  document.getElementById('intel-count').textContent = intelCount;
+  // Keep last 20
+  while (feed.children.length > 20) feed.removeChild(feed.lastChild);
+}
+
+function startIntelFeed() {
+  let idx = 0;
+  function next() {
+    const m = intelMessages[idx % intelMessages.length];
+    addIntelItem(m.cat.toUpperCase(), m.txt, m.cat);
+    idx++;
+    setTimeout(next, 2000 + Math.random()*4000);
+  }
+  next();
+}
+
+// ─── STATS ANIMATION ───
+function animateStats() {
+  setInterval(() => {
+    const ac = document.getElementById('stat-aircraft');
+    ac.textContent = (240 + Math.random()*20|0);
+    document.getElementById('stat-vehicles').textContent = (1800+Math.random()*100|0).toLocaleString();
+    document.getElementById('latency').textContent = (8+Math.random()*20|0)+'ms';
+    document.getElementById('datarate').textContent = (1.8+Math.random()*1.5).toFixed(1)+' MB/s';
+  }, 3000);
+}
+
+// ─── INIT ───
+window.addEventListener('load', () => {
+  setTimeout(initMap, 100);
+  buildCameras();
+  buildImageryGrid();
+  initMiniMap();
+  buildWaveform();
+  startIntelFeed();
+  animateStats();
+  setTimeout(() => {
+    document.getElementById('threat-fill').style.width = '42%';
+  }, 500);
+});
+
+window.addEventListener('resize', () => {
+  if (document.getElementById('panel-map').classList.contains('active')) initMap();
+  if (document.getElementById('panel-3d').classList.contains('active')) initCanvas3D();
+});
+</script>
+
+</body>
+</html>
