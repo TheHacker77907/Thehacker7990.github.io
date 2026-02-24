@@ -1,1 +1,104 @@
-h
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intel Hub: Middle East Conflict Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .source-card:hover { transform: translateY(-5px); transition: all 0.3s ease; }
+        .live-pulse {
+            width: 12px; height: 12px; background: #ff4d4d; border-radius: 50%;
+            display: inline-block; margin-right: 8px; box-shadow: 0 0 0 rgba(255, 77, 77, 0.4);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); } 
+        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); } 
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); } }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans">
+
+    <header class="bg-black border-b border-red-900 p-6 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-tighter text-red-500 uppercase">
+                <span class="live-pulse"></span>Iran Conflict Intel Hub
+            </h1>
+            <div class="mt-4 md:mt-0 text-sm bg-red-900/20 border border-red-500/50 p-2 rounded px-4">
+                <strong>2026 STATUS:</strong> Nuclear Deadline (March 5) | USS Gerald R. Ford In-Theater
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-6">
+        
+        <section class="mb-12">
+            <h2 class="text-xl font-semibold mb-6 border-l-4 border-red-600 pl-4">Primary American Sources</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <div class="source-card bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <h3 class="font-bold text-lg mb-2">The New York Times</h3>
+                    <p class="text-sm text-gray-400 mb-4">Live updates, diplomatic movements, and long-form investigation.</p>
+                    <a href="https://www.nytimes.com/live/2026/world/middle-east-news-updates" target="_blank" class="block w-full text-center bg-gray-700 hover:bg-gray-600 p-2 rounded text-sm font-semibold">Open Live Feed</a>
+                </div>
+
+                <div class="source-card bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <h3 class="font-bold text-lg mb-2">The Wall Street Journal</h3>
+                    <p class="text-sm text-gray-400 mb-4">Focus on military logistics, energy markets, and regional security.</p>
+                    <a href="https://www.wsj.com/news/world/middle-east" target="_blank" class="block w-full text-center bg-gray-700 hover:bg-gray-600 p-2 rounded text-sm font-semibold">Open Intel Section</a>
+                </div>
+
+                <div class="source-card bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <h3 class="font-bold text-lg mb-2">Fox News</h3>
+                    <p class="text-sm text-gray-400 mb-4">Updates on Trump administration policy and frontline military movements.</p>
+                    <a href="https://www.foxnews.com/category/world/conflicts/iran" target="_blank" class="block w-full text-center bg-gray-700 hover:bg-gray-600 p-2 rounded text-sm font-semibold">Open Iran Coverage</a>
+                </div>
+
+                <div class="source-card bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <h3 class="font-bold text-lg mb-2">Axios</h3>
+                    <p class="text-sm text-gray-400 mb-4">Quick "scoops" and high-speed policy updates from DC and Tel Aviv.</p>
+                    <a href="https://www.axios.com/world/israel" target="_blank" class="block w-full text-center bg-gray-700 hover:bg-gray-600 p-2 rounded text-sm font-semibold">Check Latest Scoops</a>
+                </div>
+
+                <div class="source-card bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <h3 class="font-bold text-lg mb-2">CNN</h3>
+                    <p class="text-sm text-gray-400 mb-4">On-the-ground reporting from major regional capitals.</p>
+                    <a href="https://www.cnn.com/world/middle-east" target="_blank" class="block w-full text-center bg-gray-700 hover:bg-gray-600 p-2 rounded text-sm font-semibold">Open World Desk</a>
+                </div>
+
+                <div class="source-card bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <h3 class="font-bold text-lg mb-2">Washington Post</h3>
+                    <p class="text-sm text-gray-400 mb-4">In-depth reporting on Iran's internal protests and regime stability.</p>
+                    <a href="https://www.washingtonpost.com/world/middle-east/" target="_blank" class="block w-full text-center bg-gray-700 hover:bg-gray-600 p-2 rounded text-sm font-semibold">Open Mideast Desk</a>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="bg-red-950/20 p-8 rounded-xl border border-red-900/50">
+            <h2 class="text-xl font-bold mb-6 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A2 2 0 013 15.487V6a2 2 0 011.106-1.789l5.447-2.724a2 2 0 011.894 0l5.447 2.724A2 2 0 0118 6v9.487a2 2 0 01-1.106 1.789L11.447 20a2 2 0 01-1.894 0z"></path></svg>
+                Strategic & Military Analysis
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-red-400 font-bold mb-2">ISW: Iran Update</h3>
+                    <p class="text-sm mb-4">The Institute for the Study of War provides the gold standard for daily conflict maps and Iranian internal security assessments.</p>
+                    <a href="https://understandingwar.org/research/middle-east/iran-update" target="_blank" class="text-red-500 hover:underline font-bold">View Daily Military Maps &rarr;</a>
+                </div>
+                <div>
+                    <h3 class="text-red-400 font-bold mb-2">CFR: Global Conflict Tracker</h3>
+                    <p class="text-sm mb-4">Council on Foreign Relations provides expert consensus on U.S. policy shifts and escalation risks.</p>
+                    <a href="https://www.cfr.org/global-conflict-tracker/conflict/confrontation-between-united-states-and-iran" target="_blank" class="text-red-500 hover:underline font-bold">Monitor Escalation Risk &rarr;</a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center p-12 text-gray-600 text-xs">
+        <p>This dashboard is a shortcut tool and is not affiliated with any news organization. Check sources frequently as the 2026 conflict is fluid.</p>
+    </footer>
+
+</body>
+</html>
